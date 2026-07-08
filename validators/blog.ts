@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BlogStatus } from "@/app/generated/prisma/enums";
+import { BlogStatus } from "@/app/generated/prisma/client";
 
 const optionalText = z.string().trim().optional().nullable();
 

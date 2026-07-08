@@ -1,4 +1,4 @@
-import type { ContactStatus } from "@/app/generated/prisma/enums";
+import type { ContactStatus } from "@/app/generated/prisma/client";
 
 export type SubmitContactRequest = {
   name: string;

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { StockStatus } from "@/app/generated/prisma/enums";
+import { StockStatus } from "@/app/generated/prisma/client";
 import { Prisma } from "@/app/generated/prisma/client";
 
 const jsonSchema: z.ZodType<unknown> = z.lazy(() =>

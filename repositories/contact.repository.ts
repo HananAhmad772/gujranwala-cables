@@ -1,4 +1,4 @@
-import { ContactStatus } from "@/app/generated/prisma/enums";
+import { ContactStatus } from "@/app/generated/prisma/client";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { ContactListQuery, SubmitContactRequest } from "@/types/contact";

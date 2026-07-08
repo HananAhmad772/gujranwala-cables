@@ -1,4 +1,4 @@
-import { ContactStatus } from "@/app/generated/prisma/enums";
+import { ContactStatus } from "@/app/generated/prisma/client";
 import { Prisma } from "@/app/generated/prisma/client";
 import { NotFoundError } from "@/lib/errors";
 import {

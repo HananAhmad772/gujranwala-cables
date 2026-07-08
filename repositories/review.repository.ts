@@ -1,4 +1,4 @@
-import { ReviewStatus } from "@/app/generated/prisma/enums";
+import { ReviewStatus } from "@/app/generated/prisma/client";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { ReviewListQuery, SubmitReviewRequest, UpdateReviewRequest } from "@/types/review";

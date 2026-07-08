@@ -1,4 +1,4 @@
-import type { BlogStatus } from "@/app/generated/prisma/enums";
+import type { BlogStatus } from "@/app/generated/prisma/client";
 
 export type CreateBlogRequest = {
   title: string;

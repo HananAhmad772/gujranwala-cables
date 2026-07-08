@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ReviewStatus } from "@/app/generated/prisma/enums";
+import { ReviewStatus } from "@/app/generated/prisma/client";
 
 export const submitReviewSchema = z.object({
   name: z.string().trim().nonempty("Name is required"),

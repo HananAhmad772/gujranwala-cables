@@ -1,4 +1,4 @@
-import type { ReviewStatus } from "@/app/generated/prisma/enums";
+import type { ReviewStatus } from "@/app/generated/prisma/client";
 
 export type SubmitReviewRequest = {
   name: string;
