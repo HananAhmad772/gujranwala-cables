@@ -1,14 +1,5 @@
-"use client";
-
-import { FileQuestion } from "lucide-react";
-import { ModuleWorkspace } from "@/components/admin/module-workspace";
+import { FAQsWorkspace } from "@/components/admin/content-workspaces";
 
 export default function FaqsPage() {
-  return (
-    <ModuleWorkspace
-      title="FAQ Library"
-      description="Prepare customer-facing answers about wire sizes, applications, warranties, and ordering."
-      icon={FileQuestion}
-    />
-  );
+  return <FAQsWorkspace />;
 }

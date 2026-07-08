@@ -78,24 +78,24 @@ export function DashboardPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Industrial Admin"
+        eyebrow="Super Admin"
         title={t.dashboard.title}
         description={t.dashboard.subtitle}
-        actions={
-          <>
-            <Button variant="outline">
-              <Factory className="h-4 w-4" />
-              Plant View
-            </Button>
-            <Button>
-              <Plus className="h-4 w-4" />
-              Quick Add
-            </Button>
-          </>
-        }
+        // actions={
+        //   <>
+        //     <Button variant="outline">
+        //       <Factory className="h-4 w-4" />
+        //       Plant View
+        //     </Button>
+        //     <Button>
+        //       <Plus className="h-4 w-4" />
+        //       Quick Add
+        //     </Button>
+        //   </>
+        // }
       />
 
-      <section className="mb-6 overflow-hidden rounded-lg border bg-card shadow-sm">
+      {/* <section className="mb-6 overflow-hidden rounded-lg border bg-card shadow-sm">
         <div className="industrial-grid relative p-5 sm:p-6">
           <div className="absolute inset-0 bg-gradient-to-r from-card via-card/92 to-card/75" />
           <div className="relative grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
@@ -119,7 +119,7 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
@@ -137,7 +137,7 @@ export function DashboardPage() {
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-3">
-        <SectionCard title={t.dashboard.recentActivity}>
+        {/* <SectionCard title={t.dashboard.recentActivity}>
           <div className="space-y-3">
             {activities.map((item) => (
               <div key={item.title} className="flex items-center justify-between gap-3 rounded-lg border p-3">
@@ -149,7 +149,7 @@ export function DashboardPage() {
               </div>
             ))}
           </div>
-        </SectionCard>
+        </SectionCard> */}
 
         <SectionCard
           title={t.dashboard.quickActions}
@@ -173,7 +173,7 @@ export function DashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard title={t.dashboard.operations} description="Manufacturing-grade operational pulse.">
+        {/* <SectionCard title={t.dashboard.operations} description="Manufacturing-grade operational pulse.">
           <div className="space-y-4">
             {[
               ["Catalog completion", "86%"],
@@ -192,7 +192,7 @@ export function DashboardPage() {
               </div>
             ))}
           </div>
-        </SectionCard>
+        </SectionCard> */}
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-3">

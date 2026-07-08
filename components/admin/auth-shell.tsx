@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 import { ArrowLeft, LockKeyhole, Mail } from "lucide-react";
 import { BrandMark } from "@/components/admin/brand-mark";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/toast";
 import { usePreferences } from "@/contexts/preferences-context";
+import { adminApi } from "@/services/admin-api";
 
 type AuthShellProps = {
   mode: "login" | "forgot";
@@ -15,7 +19,37 @@ type AuthShellProps = {
 
 export function AuthShell({ mode }: AuthShellProps) {
   const { t } = usePreferences();
+  const router = useRouter();
+  const { toast } = useToast();
   const isForgot = mode === "forgot";
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (isForgot) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await adminApi<{ admin: { id: string; name: string; email: string; role: string } }>('/api/auth/login', {
+        method: "POST",
+        body: { email, password },
+      });
+      router.replace("/admin");
+    } catch (error) {
+      toast({
+        title: "Sign in failed",
+        description: error instanceof Error ? error.message : "Unable to sign in.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="grid min-h-screen bg-background lg:grid-cols-[1fr_0.95fr]">
@@ -51,12 +85,12 @@ export function AuthShell({ mode }: AuthShellProps) {
             <CardDescription>{isForgot ? t.auth.forgotSubtitle : t.auth.subtitle}</CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="email">{t.auth.email}</Label>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-3" />
-                  <Input id="email" type="email" className="pl-10 rtl:pl-3 rtl:pr-10" placeholder="admin@example.com" />
+                  <Input id="email" type="email" className="pl-10 rtl:pl-3 rtl:pr-10" placeholder="admin@example.com" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required />
                 </div>
               </div>
 
@@ -65,7 +99,7 @@ export function AuthShell({ mode }: AuthShellProps) {
                   <Label htmlFor="password">{t.auth.password}</Label>
                   <div className="relative">
                     <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground rtl:left-auto rtl:right-3" />
-                    <Input id="password" type="password" className="pl-10 rtl:pl-3 rtl:pr-10" placeholder="••••••••" />
+                    <Input id="password" type="password" className="pl-10 rtl:pl-3 rtl:pr-10" placeholder="••••••••" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
                   </div>
                 </div>
               ) : null}
@@ -82,7 +116,7 @@ export function AuthShell({ mode }: AuthShellProps) {
                 </div>
               ) : null}
 
-              <Button className="w-full" type="button">
+              <Button className="w-full" type="submit" loading={loading} disabled={loading}>
                 {isForgot ? t.auth.sendReset : t.auth.signIn}
               </Button>
 

@@ -1,12 +1,12 @@
 import {
   Award,
   Cable,
-  Factory,
   Flame,
   Gauge,
   HardHat,
   Lightbulb,
   ShieldCheck,
+  Store,
   Truck,
   Zap,
   type LucideIcon,
@@ -43,7 +43,7 @@ export type PublicBlogPost = {
 
 export const company = {
   name: { en: "Gujranwala Electric Wires", ur: "گوجرانوالہ الیکٹرک وائرز" },
-  tagline: { en: "Engineered conductors for safer power.", ur: "محفوظ بجلی کے لیے انجینئرڈ کنڈکٹرز۔" },
+  tagline: { en: "Premium electrical wires, cables, and accessories for wholesale and retail supply.", ur: "ہول سیل اور ریٹیل سپلائی کے لیے پریمیم الیکٹریکل وائرز، کیبلز اور اسیسریز۔" },
   phone: "+92 55 428 1900",
   whatsapp: "+92 300 864 1900",
   email: "sales@gujranwalaelectric.com",
@@ -55,11 +55,11 @@ export const company = {
 
 export const heroSlides = [
   {
-    eyebrow: { en: "ISO-ready manufacturing", ur: "ISO معیار کے مطابق تیاری" },
-    title: { en: "Powering projects with precision-built wires.", ur: "درست معیار کی وائرز سے منصوبوں کو طاقت دیں۔" },
+    eyebrow: { en: "Premium electrical supply", ur: "پریمیم الیکٹریکل سپلائی" },
+    title: { en: "Premium electrical supply from trusted brands.", ur: "قابل اعتماد برانڈز سے پریمیم الیکٹریکل سپلائی۔" },
     subtitle: {
-      en: "Premium copper and aluminium cable solutions for homes, industry, infrastructure, and commercial distribution.",
-      ur: "گھروں، صنعت، انفراسٹرکچر اور کمرشل ڈسٹری بیوشن کے لیے پریمیم کاپر اور ایلومینیم کیبل حل۔",
+      en: "Wholesale and retail supply of premium electrical wires, cables, accessories, and project-ready products.",
+      ur: "پریمیم الیکٹریکل وائرز، کیبلز، اسیسریز اور پراجیکٹ مصنوعات کی ہول سیل اور ریٹیل سپلائی۔",
     },
     image:
       "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=2200&q=85",
@@ -68,8 +68,8 @@ export const heroSlides = [
     eyebrow: { en: "Tested for demanding sites", ur: "مشکل سائٹس کے لیے ٹیسٹ شدہ" },
     title: { en: "Industrial-grade cables for dependable current flow.", ur: "قابل اعتماد کرنٹ فلو کے لیے صنعتی معیار کی کیبلز۔" },
     subtitle: {
-      en: "From conductor drawing to insulation and final QA, every batch is built for consistency and safety.",
-      ur: "کنڈکٹر ڈرائنگ سے انسولیشن اور آخری کوالٹی چیک تک، ہر بیچ حفاظت کے لیے تیار ہوتا ہے۔",
+      en: "We help customers select reliable branded products with clear specifications, fair dealing, and dependable availability for every site.",
+      ur: "ہم ہر سائٹ کے لیے واضح اسپیسفکیشنز، مناسب ڈیلنگ اور قابل اعتماد دستیابی کے ساتھ برانڈڈ مصنوعات منتخب کرنے میں مدد دیتے ہیں۔",
     },
     image:
       "https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=2200&q=85",
@@ -78,8 +78,8 @@ export const heroSlides = [
     eyebrow: { en: "Built for contractors", ur: "کنٹریکٹرز کے لیے تیار" },
     title: { en: "Reliable supply for buildings, plants, and power networks.", ur: "عمارتوں، پلانٹس اور پاور نیٹ ورکس کے لیے قابل اعتماد سپلائی۔" },
     subtitle: {
-      en: "A responsive team, practical technical guidance, and a portfolio designed for real installation conditions.",
-      ur: "فوری رسپانس، عملی تکنیکی رہنمائی، اور حقیقی انسٹالیشن حالات کے لیے ڈیزائن کردہ پورٹ فولیو۔",
+      en: "A responsive team, practical technical guidance, and a portfolio designed for real installation conditions and fast project delivery.",
+      ur: "فوری رسپانس، عملی تکنیکی رہنمائی، اور حقیقی انسٹالیشن حالات اور تیز پراجیکٹ ڈیلیوری کے لیے ڈیزائن کردہ پورٹ فولیو۔",
     },
     image:
       "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=2200&q=85",
@@ -161,7 +161,7 @@ export const products: PublicProduct[] = [
       { en: "Batch-level quality checks", ur: "ہر بیچ کی کوالٹی چیکس" },
     ],
     applications: [
-      { en: "Factory power lines", ur: "فیکٹری پاور لائنز" },
+      { en: "Shop and building supply", ur: "دکان اور بلڈنگ سپلائی" },
       { en: "Commercial risers", ur: "کمرشل رائزرز" },
       { en: "Panel connections", ur: "پینل کنیکشنز" },
     ],
@@ -212,16 +212,16 @@ export const brands = [
 ];
 
 export const whyChoose = [
-  { icon: ShieldCheck, title: { en: "Quality assurance", ur: "کوالٹی اشورنس" }, text: { en: "Incoming material checks, controlled production, and final inspection discipline.", ur: "خام مال کی جانچ، کنٹرولڈ پروڈکشن، اور آخری انسپیکشن ڈسپلن۔" } },
-  { icon: Factory, title: { en: "Manufacturing depth", ur: "مینوفیکچرنگ مہارت" }, text: { en: "Practical production workflows shaped around repeatable cable performance.", ur: "مستقل کیبل کارکردگی کے لیے عملی پروڈکشن ورک فلو۔" } },
+  { icon: ShieldCheck, title: { en: "Quality products", ur: "معیاری مصنوعات" }, text: { en: "We focus on trusted brands, clear specifications, and products customers can buy with confidence.", ur: "ہم قابل اعتماد برانڈز، واضح اسپیسفکیشنز اور اعتماد سے خریدی جانے والی مصنوعات پر فوکس کرتے ہیں۔" } },
+  { icon: Store, title: { en: "Wholesale and retail", ur: "ہول سیل اور ریٹیل" }, text: { en: "Practical supply support for shops, contractors, builders, electricians, and home buyers.", ur: "دکانوں، کنٹریکٹرز، بلڈرز، الیکٹریشنز اور گھریلو خریداروں کے لیے عملی سپلائی سپورٹ۔" } },
   { icon: HardHat, title: { en: "Contractor-ready", ur: "کنٹریکٹر کے لیے تیار" }, text: { en: "Clear specifications, reliable availability, and site-friendly product ranges.", ur: "واضح اسپیسفکیشنز، قابل اعتماد دستیابی، اور سائٹ فرینڈلی مصنوعات۔" } },
   { icon: Truck, title: { en: "Responsive supply", ur: "فوری سپلائی" }, text: { en: "Commercial support for dealers, builders, and infrastructure buyers.", ur: "ڈیلرز، بلڈرز اور انفراسٹرکچر خریداروں کے لیے کمرشل سپورٹ۔" } },
 ];
 
 export const processSteps = [
-  { title: { en: "Conductor drawing", ur: "کنڈکٹر ڈرائنگ" }, text: { en: "Copper and aluminium conductors are prepared to controlled dimensions.", ur: "کاپر اور ایلومینیم کنڈکٹرز کنٹرولڈ سائز میں تیار کیے جاتے ہیں۔" } },
-  { title: { en: "Insulation extrusion", ur: "انسولیشن ایکسٹروژن" }, text: { en: "Insulation layers are applied for mechanical protection and electrical safety.", ur: "مکینیکل تحفظ اور برقی حفاظت کے لیے انسولیشن لیئرز لگائی جاتی ہیں۔" } },
-  { title: { en: "Testing and marking", ur: "ٹیسٹنگ اور مارکنگ" }, text: { en: "Finished batches are checked, marked, packed, and prepared for delivery.", ur: "تیار بیچز چیک، مارک، پیک اور ڈیلیوری کے لیے تیار کیے جاتے ہیں۔" } },
+  { title: { en: "Product selection", ur: "پروڈکٹ انتخاب" }, text: { en: "Our team helps customers choose suitable wire type, size, brand, and quantity.", ur: "ہماری ٹیم صارفین کو مناسب وائر قسم، سائز، برانڈ اور مقدار منتخب کرنے میں مدد دیتی ہے۔" } },
+  { title: { en: "Brand and stock check", ur: "برانڈ اور اسٹاک چیک" }, text: { en: "Available products are checked against customer needs before quotation or delivery.", ur: "قیمت یا ڈیلیوری سے پہلے دستیاب مصنوعات کسٹمر ضرورت کے مطابق چیک کی جاتی ہیں۔" } },
+  { title: { en: "Quotation and supply", ur: "قیمت اور سپلائی" }, text: { en: "Wholesale and retail orders are prepared with clear product details and responsive support.", ur: "ہول سیل اور ریٹیل آرڈرز واضح پروڈکٹ تفصیل اور فوری سپورٹ کے ساتھ تیار ہوتے ہیں۔" } },
 ];
 
 export const blogPosts: PublicBlogPost[] = [
@@ -254,18 +254,18 @@ export const blogPosts: PublicBlogPost[] = [
     category: { en: "Quality", ur: "کوالٹی" },
   },
   {
-    slug: "factory-testing-for-reliable-wires",
-    title: { en: "Inside factory testing for reliable wires", ur: "قابل اعتماد وائرز کے لیے فیکٹری ٹیسٹنگ" },
-    excerpt: { en: "A look at the quality checks that help keep cable performance predictable.", ur: "کیبل کارکردگی کو قابل پیشگوئی رکھنے والی کوالٹی چیکس کا جائزہ۔" },
+    slug: "buying-quality-wires-from-authorized-brands",
+    title: { en: "Buying quality wires from authorized brands", ur: "مجاز برانڈز سے معیاری وائرز خریدنا" },
+    excerpt: { en: "A practical look at brand trust, specifications, and buying confidence.", ur: "برانڈ اعتماد، اسپیسفکیشنز اور خریداری اعتماد کا عملی جائزہ۔" },
     body: [
-      { en: "Testing routines help manufacturers catch variation before products reach the market. Resistance checks, insulation review, and visual inspection all matter.", ur: "ٹیسٹنگ روٹینز مارکیٹ میں مصنوعات پہنچنے سے پہلے فرق پکڑنے میں مدد دیتی ہیں۔ ریزسٹنس چیکس، انسولیشن ریویو اور بصری انسپیکشن سب اہم ہیں۔" },
-      { en: "For buyers, a consistent testing culture is one of the clearest signals that a cable supplier is serious about long-term reliability.", ur: "خریداروں کے لیے مستقل ٹیسٹنگ کلچر اس بات کا واضح اشارہ ہے کہ سپلائر طویل مدتی اعتماد کو سنجیدگی سے لیتا ہے۔" },
+      { en: "Buying from trusted electrical brands helps customers compare specifications, understand product use, and avoid low-quality alternatives.", ur: "قابل اعتماد الیکٹریکل برانڈز سے خریداری صارفین کو اسپیسفکیشنز سمجھنے، استعمال جاننے اور کم معیار متبادل سے بچنے میں مدد دیتی ہے۔" },
+      { en: "For buyers, a reliable supplier should provide clear product details, responsive service, and suitable options for both retail and wholesale needs.", ur: "خریداروں کے لیے قابل اعتماد سپلائر کو واضح پروڈکٹ تفصیل، فوری سروس اور ریٹیل و ہول سیل ضروریات کے لیے مناسب آپشنز دینے چاہئیں۔" },
     ],
     image:
       "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
     date: "2026-04-12",
     readTime: { en: "6 min read", ur: "6 منٹ مطالعہ" },
-    category: { en: "Manufacturing", ur: "مینوفیکچرنگ" },
+    category: { en: "Buying Guide", ur: "خریداری گائیڈ" },
   },
 ];
 
@@ -289,16 +289,16 @@ export const reviews = [
 
 export const faqs = [
   {
-    question: { en: "Do you manufacture both copper and aluminium cables?", ur: "کیا آپ کاپر اور ایلومینیم دونوں کیبلز بناتے ہیں؟" },
-    answer: { en: "Yes. The dummy catalog includes copper building wires and industrial cable ranges. Final product availability will be driven by the API catalog later.", ur: "جی ہاں۔ ڈمی کیٹلاگ میں کاپر بلڈنگ وائرز اور انڈسٹریل کیبل رینجز شامل ہیں۔ اصل دستیابی بعد میں API کیٹلاگ سے آئے گی۔" },
+    question: { en: "Do you sell both copper and aluminium cables?", ur: "کیا آپ کاپر اور ایلومینیم دونوں کیبلز فروخت کرتے ہیں؟" },
+    answer: { en: "Yes. Our catalog includes premium wire and cable ranges for retail, wholesale, and project supply from authorized brands.", ur: "جی ہاں۔ ہماری کیٹلاگ میں مجاز برانڈز سے ریٹیل، ہول سیل اور پراجیکٹ سپلائی کے لیے پریمیم وائر اور کیبل رینجز شامل ہیں۔" },
   },
   {
     question: { en: "Can contractors request technical guidance?", ur: "کیا کنٹریکٹرز تکنیکی رہنمائی لے سکتے ہیں؟" },
-    answer: { en: "Yes. The contact page includes a project inquiry form designed for product, quantity, and installation questions.", ur: "جی ہاں۔ رابطہ صفحے میں پروڈکٹ، مقدار اور انسٹالیشن سوالات کے لیے پراجیکٹ انکوائری فارم شامل ہے۔" },
+    answer: { en: "Yes. Our sales team can help with product selection, quantity planning, and supply timing for active jobs.", ur: "جی ہاں۔ ہماری سیلز ٹیم فعال کاموں کے لیے پروڈکٹ انتخاب، مقدار کی منصوبہ بندی اور سپلائی کا وقت معلوم کرنے میں مدد کر سکتی ہے۔" },
   },
   {
-    question: { en: "Is this website connected to backend APIs?", ur: "کیا یہ ویب سائٹ بیک اینڈ APIs سے منسلک ہے؟" },
-    answer: { en: "Not yet. This implementation intentionally uses realistic placeholder data and is structured for future API integration.", ur: "ابھی نہیں۔ یہ نفاذ جان بوجھ کر حقیقی جیسا پلیس ہولڈر ڈیٹا استعمال کرتا ہے اور مستقبل کی API انٹیگریشن کے لیے تیار ہے۔" },
+    question: { en: "Do you support wholesale and retail orders?", ur: "کیا آپ ہول سیل اور ریٹیل دونوں آرڈرز کی حمایت کرتے ہیں؟" },
+    answer: { en: "Yes. We support both small retail purchases and larger wholesale requirements for dealers, contractors, and project buyers.", ur: "جی ہاں۔ ہم چھوٹے ریٹیل خریداریوں اور ڈیلرز، کنٹریکٹرز اور پراجیکٹ خریداروں کے لیے بڑے ہول سیل تقاضوں کی دونوں طرح مدد کرتے ہیں۔" },
   },
 ];
 
@@ -306,7 +306,7 @@ export const stats = [
   { value: "25+", label: { en: "Product variants", ur: "پروڈکٹ ویریئنٹس" } },
   { value: "3x", label: { en: "Quality checkpoints", ur: "کوالٹی چیک پوائنٹس" } },
   { value: "24h", label: { en: "Inquiry response target", ur: "انکوائری رسپانس ہدف" } },
-  { value: "PK", label: { en: "Local manufacturing focus", ur: "لوکل مینوفیکچرنگ فوکس" } },
+  { value: "PK", label: { en: "Local retail supply focus", ur: "لوکل ریٹیل سپلائی فوکس" } },
 ];
 
 export const certifications = [

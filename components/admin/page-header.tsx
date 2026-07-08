@@ -17,16 +17,16 @@ type PageHeaderProps = {
 
 export function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="mb-3 flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+    <nav aria-label="Breadcrumb" className="mb-3 inline-flex flex-wrap items-center gap-1 rounded-full border border-border/70 bg-background/70 px-3 py-2 text-sm text-muted-foreground shadow-sm shadow-black/5 backdrop-blur">
       {items.map((item, index) => (
         <span key={`${item.label}-${index}`} className="flex items-center gap-1">
           {index > 0 ? <ChevronRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" /> : null}
           {item.href ? (
-            <a href={item.href} className="hover:text-foreground">
+            <a href={item.href} className="rounded-full px-1.5 py-0.5 transition hover:bg-muted hover:text-foreground">
               {item.label}
             </a>
           ) : (
-            <span className="text-foreground">{item.label}</span>
+            <span className="rounded-full px-1.5 py-0.5 text-foreground">{item.label}</span>
           )}
         </span>
       ))}

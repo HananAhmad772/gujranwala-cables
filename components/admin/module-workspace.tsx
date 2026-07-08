@@ -59,26 +59,26 @@ export function ModuleWorkspace({ title, description, icon: Icon, rows = fallbac
         eyebrow="Workspace"
         title={title}
         description={description}
-        actions={
-          <>
-            {/* <Button variant="outline">
-              <UploadCloud className="h-4 w-4" />
-              Import
-            </Button> */}
-            <Button>
-              <Plus className="h-4 w-4" />
-              Prepare New
-            </Button>
-          </>
-        }
+        // actions={
+        //   <>
+        //     <Button variant="outline">
+        //       <UploadCloud className="h-4 w-4" />
+        //       Import
+        //     </Button>
+        //     <Button>
+        //       <Plus className="h-4 w-4" />
+        //       Prepare New
+        //     </Button>
+        //   </>
+        // }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_22rem]">
-        <SectionCard
+      <div className="grid gap-6 xl">
+        {/* <SectionCard
           title={title}
           description={t.common.comingSoon}
           action={<Badge variant="secondary">Backend ready</Badge>}
-        >
+        > */}
           <DataTable
             rows={rows}
             columns={columns}
@@ -86,7 +86,7 @@ export function ModuleWorkspace({ title, description, icon: Icon, rows = fallbac
             emptyDescription={t.states.emptyDescription}
             searchPlaceholder={`Search ${title.toLowerCase()}`}
           />
-        </SectionCard>
+        {/* </SectionCard> */}
 
         {/* <div className="space-y-6">
           <SectionCard title="Integration Plan" description="Reusable API hooks are prepared for this workspace.">

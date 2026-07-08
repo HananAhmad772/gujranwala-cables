@@ -41,6 +41,7 @@ function buildCategoryData(payload: CreateCategoryRequest | UpdateCategoryReques
   if (payload.name !== undefined) data.name = payload.name;
   if (payload.slug !== undefined) data.slug = payload.slug;
   if (payload.description !== undefined) data.description = payload.description;
+  if (payload.isActive !== undefined) data.isActive = payload.isActive;
 
   return data;
 }

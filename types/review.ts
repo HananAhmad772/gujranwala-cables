@@ -7,6 +7,10 @@ export type SubmitReviewRequest = {
   comment: string;
 };
 
+export type UpdateReviewRequest = Partial<SubmitReviewRequest> & {
+  status?: ReviewStatus;
+};
+
 export type ReviewListQuery = {
   page: number;
   limit: number;

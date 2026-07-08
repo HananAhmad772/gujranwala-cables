@@ -6,6 +6,7 @@ export const createCategorySchema = z.object({
   name: z.string().trim().nonempty("Name is required"),
   slug: z.string().trim().nonempty("Slug is required"),
   description: optionalText,
+  isActive: z.boolean().optional(),
 });
 
 export const updateCategorySchema = createCategorySchema.partial().refine((value) => Object.keys(value).length > 0, {

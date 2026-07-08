@@ -1,15 +1,5 @@
-"use client";
-
-import { Package } from "lucide-react";
-import { ModuleWorkspace } from "@/components/admin/module-workspace";
+import { ProductsWorkspace } from "@/components/admin/content-workspaces";
 
 export default function ProductsPage() {
-  return (
-    <ModuleWorkspace
-      title="Product Catalog"
-      description="Manage cable products, technical specifications, stock status, images, brands, and categories."
-      icon={Package}
-      imageTools
-    />
-  );
+  return <ProductsWorkspace />;
 }

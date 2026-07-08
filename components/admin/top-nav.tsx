@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Menu, Moon, Sun, UserRound } from "lucide-react";
 import { BrandMark } from "@/components/admin/brand-mark";
 import { SearchCommand } from "@/components/admin/search-command";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/toast";
 import { usePreferences } from "@/contexts/preferences-context";
+import { adminApi } from "@/services/admin-api";
 import { locales } from "@/translations";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type TopNavProps = {
   onMenuClick: () => void;
@@ -16,10 +19,48 @@ type TopNavProps = {
 
 export function TopNav({ onMenuClick }: TopNavProps) {
   const { t, locale, setLocale, theme, setTheme, resolvedTheme } = usePreferences();
+  const router = useRouter();
+  const { toast } = useToast();
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const [adminName, setAdminName] = useState("Admin");
 
   const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadAdmin() {
+      try {
+        const result = await adminApi<{ admin: { name?: string; email?: string } }>('/api/auth/me');
+        if (!mounted) return;
+        setAdminName(result.admin.name || "Admin");
+      } catch {
+        if (!mounted) return;
+        setAdminName("Admin");
+      }
+    }
+
+    void loadAdmin();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await adminApi('/api/auth/logout', { method: "POST" });
+      setLogoutOpen(false);
+      setProfileOpen(false);
+      router.replace("/admin/login");
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: error instanceof Error ? error.message : "Unable to sign out.",
+      });
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/88 px-4 backdrop-blur-xl lg:px-6">
@@ -71,7 +112,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <UserRound className="h-4 w-4" />
           </span>
-          <span className="hidden text-sm font-medium xl:inline">Admin</span>
+          <span className="hidden text-sm font-medium xl:inline">{adminName}</span>
           <ChevronDown className="hidden h-4 w-4 text-muted-foreground xl:inline" />
         </Button>
       </div>
@@ -101,7 +142,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           <Button variant="outline" onClick={() => setLogoutOpen(false)}>
             {t.common.cancel}
           </Button>
-          <Button onClick={() => setLogoutOpen(false)}>
+          <Button onClick={() => void handleLogout()}>
             {t.common.logout}
           </Button>
         </div>

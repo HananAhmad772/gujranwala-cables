@@ -6,9 +6,10 @@ import {
   deleteReview,
   findReviewById,
   findReviews,
+  updateReview,
   updateReviewStatus,
 } from "@/repositories/review.repository";
-import type { ReviewListQuery, SubmitReviewRequest } from "@/types/review";
+import type { ReviewListQuery, SubmitReviewRequest, UpdateReviewRequest } from "@/types/review";
 
 type Review = NonNullable<Awaited<ReturnType<typeof findReviewById>>>;
 
@@ -39,6 +40,15 @@ export async function getReviews(query: ReviewListQuery) {
 export async function submitReview(payload: SubmitReviewRequest) {
   const review = await createReview(payload);
   return formatReview(review);
+}
+
+export async function editReview(id: string, payload: UpdateReviewRequest) {
+  try {
+    const review = await updateReview(id, payload);
+    return formatReview(review);
+  } catch (error) {
+    handlePrismaError(error);
+  }
 }
 
 export async function approveReview(id: string) {

@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Facebook,
   Globe2,
-  Instagram,
-  Linkedin,
   Mail,
   MapPin,
   Menu,
@@ -15,7 +12,6 @@ import {
   Search,
   Sun,
   X,
-  Youtube,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -33,7 +29,7 @@ const navItems = [
   { href: "/contact", label: { en: "Contact", ur: "رابطہ" } },
 ];
 
-function BrandMark() {
+function BrandMark({ inverted = false }: { inverted?: boolean }) {
   const { text } = usePublicLocale();
 
   return (
@@ -43,7 +39,7 @@ function BrandMark() {
       </span>
       <span className="leading-tight">
         <span className="block text-sm font-black uppercase tracking-[0.18em] text-primary">GEW</span>
-        <span className="block text-sm font-semibold text-foreground">{text(company.name)}</span>
+        <span className={cn("block text-sm font-semibold", inverted ? "text-white" : "text-foreground")}>{text(company.name)}</span>
       </span>
     </Link>
   );
@@ -161,12 +157,12 @@ export function Footer() {
     <footer className="border-t bg-[#07111f] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] lg:px-8">
         <div className="space-y-5">
-          <BrandMark />
+          <BrandMark inverted />
           <p className="max-w-sm text-sm leading-7 text-slate-300">{text(company.tagline)}</p>
           <div className="flex gap-2">
-            {[Facebook, Instagram, Linkedin, Youtube].map((Icon, index) => (
-              <a key={index} href="#" className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label="Social link">
-                <Icon className="h-4 w-4" aria-hidden="true" />
+            {["Fb", "Ig", "In", "Yt"].map((label) => (
+              <a key={label} href="#" className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-xs font-black text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label={`${label} social link`}>
+                {label}
               </a>
             ))}
           </div>

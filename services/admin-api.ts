@@ -9,7 +9,7 @@ type RequestOptions = {
   body?: unknown;
 };
 
-export async function adminApi<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function adminApiRequest<T>(path: string, options: RequestOptions = {}): Promise<{ data: T; message: string }> {
   const response = await fetch(path, {
     method: options.method ?? "GET",
     headers: options.body ? { "Content-Type": "application/json" } : undefined,
@@ -23,5 +23,10 @@ export async function adminApi<T>(path: string, options: RequestOptions = {}): P
     throw new Error(result.message || "Request failed");
   }
 
-  return result.data;
+  return { data: result.data, message: result.message };
+}
+
+export async function adminApi<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const { data } = await adminApiRequest<T>(path, options);
+  return data;
 }

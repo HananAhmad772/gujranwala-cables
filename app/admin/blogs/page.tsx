@@ -1,15 +1,5 @@
-"use client";
-
-import { BookOpenText } from "lucide-react";
-import { ModuleWorkspace } from "@/components/admin/module-workspace";
+import { BlogsWorkspace } from "@/components/admin/content-workspaces";
 
 export default function BlogsPage() {
-  return (
-    <ModuleWorkspace
-      title="Knowledge Center"
-      description="Plan technical articles, safety guidance, cable education, and SEO content."
-      icon={BookOpenText}
-      imageTools
-    />
-  );
+  return <BlogsWorkspace />;
 }

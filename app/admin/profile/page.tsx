@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, Eye, EyeOff, KeyRound, Mail, ShieldUser, UserRound } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/section-card";
@@ -17,8 +18,15 @@ type PasswordField = "currentPassword" | "newPassword" | "confirmPassword";
 
 export default function ProfilePage() {
   const { t } = usePreferences();
+  const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState({
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin",
+    createdAt: "",
+  });
   const [visible, setVisible] = useState<Record<PasswordField, boolean>>({
     currentPassword: false,
     newPassword: false,
@@ -31,6 +39,36 @@ export default function ProfilePage() {
   });
 
   const strength = useMemo(() => getPasswordStrength(passwords.newPassword), [passwords.newPassword]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadProfile() {
+      try {
+        const result = await adminApi<{ admin: { name?: string; email?: string; role?: string; createdAt?: string } }>('/api/auth/me');
+        if (!mounted) return;
+        setProfile({
+          name: result.admin.name || "Admin User",
+          email: result.admin.email || "admin@example.com",
+          role: result.admin.role || "admin",
+          createdAt: result.admin.createdAt || "",
+        });
+      } catch (error) {
+        if (!mounted) return;
+        toast({
+          title: "Unable to load profile",
+          description: error instanceof Error ? error.message : "Please sign in again.",
+        });
+        router.replace("/admin/login");
+      }
+    }
+
+    void loadProfile();
+
+    return () => {
+      mounted = false;
+    };
+  }, [router, toast]);
 
   function updatePassword(field: PasswordField, value: string) {
     setPasswords((current) => ({ ...current, [field]: value }));
@@ -87,15 +125,15 @@ export default function ProfilePage() {
                 {t.common.admin}
               </span>
             </div>
-            <h2 className="mt-6 text-lg font-semibold">Admin User</h2>
+            <h2 className="mt-6 text-lg font-semibold">{profile.name}</h2>
             <p className="text-sm text-muted-foreground">Manufacturing console administrator</p>
           </div>
 
           <div className="mt-6 space-y-3">
-            <InfoRow icon={UserRound} label={t.profile.name} value="Admin User" />
-            <InfoRow icon={Mail} label={t.profile.email} value="admin@ggujranwalaelectricwires.com" />
-            <InfoRow icon={ShieldUser} label={t.profile.role} value={<Badge variant="success">admin</Badge>} />
-            <InfoRow icon={CalendarDays} label={t.profile.createdDate} value="July 6, 2026" />
+            <InfoRow icon={UserRound} label={t.profile.name} value={profile.name} />
+            <InfoRow icon={Mail} label={t.profile.email} value={profile.email} />
+            <InfoRow icon={ShieldUser} label={t.profile.role} value={<Badge variant="success">{profile.role}</Badge>} />
+            <InfoRow icon={CalendarDays} label={t.profile.createdDate} value={profile.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"} />
           </div>
         </SectionCard>
 

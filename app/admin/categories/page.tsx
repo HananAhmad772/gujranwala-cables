@@ -1,14 +1,5 @@
-"use client";
-
-import { FolderTree } from "lucide-react";
-import { ModuleWorkspace } from "@/components/admin/module-workspace";
+import { CategoriesWorkspace } from "@/components/admin/content-workspaces";
 
 export default function CategoriesPage() {
-  return (
-    <ModuleWorkspace
-      title="Category Matrix"
-      description="Organize product families by application, cable type, and catalog browsing needs."
-      icon={FolderTree}
-    />
-  );
+  return <CategoriesWorkspace />;
 }

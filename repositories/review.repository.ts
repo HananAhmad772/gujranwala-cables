@@ -1,7 +1,7 @@
 import { ReviewStatus } from "@/app/generated/prisma/enums";
 import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import type { ReviewListQuery, SubmitReviewRequest } from "@/types/review";
+import type { ReviewListQuery, SubmitReviewRequest, UpdateReviewRequest } from "@/types/review";
 
 function buildReviewWhere(query: ReviewListQuery): Prisma.ReviewWhereInput {
   return {
@@ -51,6 +51,13 @@ export async function findReviewById(id: string) {
 
 export async function createReview(payload: SubmitReviewRequest) {
   return prisma.review.create({
+    data: payload,
+  });
+}
+
+export async function updateReview(id: string, payload: UpdateReviewRequest) {
+  return prisma.review.update({
+    where: { id },
     data: payload,
   });
 }

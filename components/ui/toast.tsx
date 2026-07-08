@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { CheckCircle2, Info, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Info, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +9,7 @@ type Toast = {
   id: string;
   title: string;
   description?: string;
-  variant?: "default" | "success";
+  variant?: "default" | "success" | "error";
 };
 
 type ToastContextValue = {
@@ -41,17 +41,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="fixed bottom-4 right-4 z-[60] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-3" aria-live="polite">
         {toasts.map((item) => {
-          const Icon = item.variant === "success" ? CheckCircle2 : Info;
+          const Icon = item.variant === "success" ? CheckCircle2 : item.variant === "error" ? AlertCircle : Info;
+          const toneClass = item.variant === "success" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-950 dark:text-emerald-50" : item.variant === "error" ? "border-red-500/20 bg-red-500/10 text-red-950 dark:text-red-50" : "border-border/80 bg-card/95 text-card-foreground backdrop-blur";
 
           return (
-            <div key={item.id} className="rounded-lg border bg-card p-4 text-card-foreground shadow-xl">
+            <div key={item.id} className={cn("rounded-xl border p-4 shadow-lg shadow-black/10", toneClass)}>
               <div className="flex gap-3">
-                <Icon className={cn("mt-0.5 h-5 w-5", item.variant === "success" ? "text-emerald-500" : "text-primary")} />
+                <Icon className={cn("mt-0.5 h-5 w-5 shrink-0", item.variant === "success" ? "text-emerald-600" : item.variant === "error" ? "text-red-600" : "text-primary")} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">{item.title}</p>
-                  {item.description ? <p className="mt-1 text-sm text-muted-foreground">{item.description}</p> : null}
+                  {item.description ? <p className="mt-1 text-sm opacity-90">{item.description}</p> : null}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeToast(item.id)} aria-label="Dismiss notification">
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeToast(item.id)} aria-label="Dismiss notification">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
