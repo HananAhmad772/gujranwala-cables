@@ -17,3 +17,8 @@ export const contactListQuerySchema = z.object({
   search: z.string().trim().optional(),
   status: z.enum(ContactStatus).optional(),
 });
+
+export const updateContactStatusSchema = z.object({
+  status: z.enum(ContactStatus),
+});
+

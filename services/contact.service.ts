@@ -3,6 +3,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import { NotFoundError } from "@/lib/errors";
 import {
   createContact,
+  deleteContact,
   findContactById,
   findContacts,
   updateContactStatus,
@@ -44,6 +45,24 @@ export async function closeContact(id: string) {
   try {
     const contact = await updateContactStatus(id, ContactStatus.CLOSED);
     return formatContact(contact);
+  } catch (error) {
+    handlePrismaError(error);
+  }
+}
+
+export async function editContact(id: string, status: ContactStatus) {
+  try {
+    const contact = await updateContactStatus(id, status);
+    return formatContact(contact);
+  } catch (error) {
+    handlePrismaError(error);
+  }
+}
+
+export async function removeContact(id: string) {
+  try {
+    await deleteContact(id);
+    return true;
   } catch (error) {
     handlePrismaError(error);
   }

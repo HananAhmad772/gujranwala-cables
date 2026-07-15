@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ProductsPage } from "@/components/public/pages";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Products | Gujranwala Electric Wires",
   description: "Explore premium building wires, power cables, and safety-led cable ranges.",

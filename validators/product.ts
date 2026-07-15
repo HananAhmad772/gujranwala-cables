@@ -38,6 +38,7 @@ export const createProductSchema = z.object({
   application: optionalText,
   price: priceSchema,
   stockStatus: z.enum(StockStatus).optional(),
+  isActive: z.boolean().optional(),
   featuredImage: optionalText,
   metaTitle: optionalText,
   metaDescription: optionalText,
@@ -64,4 +65,10 @@ export const productListQuerySchema = z.object({
     .enum(["true", "false"])
     .transform((value) => value === "true")
     .optional(),
+  isActive: z.preprocess((val) => {
+    if (val === "true") return true;
+    if (val === "false") return false;
+    return val;
+  }, z.boolean().optional()),
 });
+

@@ -17,6 +17,7 @@ export type CreateProductRequest = {
   application?: string | null;
   price: string;
   stockStatus?: StockStatus;
+  isActive?: boolean;
   featuredImage?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
@@ -36,4 +37,6 @@ export type ProductListQuery = {
   categoryId?: string;
   stockStatus?: StockStatus;
   featured?: boolean;
+  isActive?: boolean;
 };
+

@@ -1,0 +1,5 @@
+# Ignore user-uploaded files but keep the directory and placeholders
+*
+!.gitignore
+!placeholders/
+!placeholders/**

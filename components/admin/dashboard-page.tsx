@@ -17,6 +17,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/admin/page-header";
 import { SectionCard } from "@/components/admin/section-card";
 import { StatCard } from "@/components/admin/stat-card";
@@ -25,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePreferences } from "@/contexts/preferences-context";
+import { adminApi } from "@/services/admin-api";
 
 const MonthlySignalsChart = dynamic(
   () => import("@/components/admin/dashboard-charts").then((mod) => mod.MonthlySignalsChart),
@@ -35,6 +37,16 @@ const CatalogMixChart = dynamic(
   () => import("@/components/admin/dashboard-charts").then((mod) => mod.CatalogMixChart),
   { loading: () => <Skeleton className="h-80 w-full" /> },
 );
+
+type LiveStats = {
+  products: number;
+  categories: number;
+  brands: number;
+  pendingReviews: number;
+  totalReviews: number;
+  contactMessages: number;
+  blogPosts: number;
+};
 
 const activities = [
   { title: "XLPE cable catalog reviewed", meta: "Product quality queue", status: "ACTIVE" },
@@ -63,15 +75,22 @@ const blogs = [
 
 export function DashboardPage() {
   const { t } = usePreferences();
+  const [liveStats, setLiveStats] = useState<LiveStats | null>(null);
+
+  useEffect(() => {
+    adminApi<LiveStats>("/api/stats")
+      .then((data) => setLiveStats(data))
+      .catch((err) => console.error("Failed to load stats", err));
+  }, []);
 
   const stats = [
-    { title: t.dashboard.totalProducts, value: "148", change: "+12 this month", trend: "up" as const, icon: Package, accent: "blue" as const },
-    { title: t.dashboard.categories, value: "18", change: "+3 refined", trend: "up" as const, icon: FolderTree, accent: "orange" as const },
-    { title: t.dashboard.brands, value: "24", change: "+2 active", trend: "up" as const, icon: Building2, accent: "green" as const },
-    { title: t.dashboard.pendingReviews, value: "9", change: "Needs review", trend: "down" as const, icon: Clock3, accent: "amber" as const },
-    { title: t.dashboard.contactMessages, value: "31", change: "+8 inquiries", trend: "up" as const, icon: MessageSquareText, accent: "blue" as const },
-    { title: t.dashboard.blogPosts, value: "16", change: "+4 drafts", trend: "up" as const, icon: BookOpenText, accent: "orange" as const },
-    { title: t.dashboard.reviews, value: "86", change: "94% positive", trend: "up" as const, icon: Star, accent: "green" as const },
+    { title: t.dashboard.totalProducts, value: liveStats ? String(liveStats.products) : "—", change: "Active products", trend: "up" as const, icon: Package, accent: "blue" as const },
+    { title: t.dashboard.categories, value: liveStats ? String(liveStats.categories) : "—", change: "Active categories", trend: "up" as const, icon: FolderTree, accent: "orange" as const },
+    { title: t.dashboard.brands, value: liveStats ? String(liveStats.brands) : "—", change: "Active brands", trend: "up" as const, icon: Building2, accent: "green" as const },
+    { title: t.dashboard.pendingReviews, value: liveStats ? String(liveStats.pendingReviews) : "—", change: "Needs review", trend: "down" as const, icon: Clock3, accent: "amber" as const },
+    { title: t.dashboard.contactMessages, value: liveStats ? String(liveStats.contactMessages) : "—", change: "New inquiries", trend: "up" as const, icon: MessageSquareText, accent: "blue" as const },
+    { title: t.dashboard.blogPosts, value: liveStats ? String(liveStats.blogPosts) : "—", change: "Published posts", trend: "up" as const, icon: BookOpenText, accent: "orange" as const },
+    { title: t.dashboard.reviews, value: liveStats ? String(liveStats.totalReviews) : "—", change: "Total reviews", trend: "up" as const, icon: Star, accent: "green" as const },
     { title: t.dashboard.qualityScore, value: "98%", change: "Catalog health", trend: "up" as const, icon: ShieldCheck, accent: "blue" as const },
   ];
 
@@ -81,18 +100,18 @@ export function DashboardPage() {
         eyebrow="Super Admin"
         title={t.dashboard.title}
         description={t.dashboard.subtitle}
-        // actions={
-        //   <>
-        //     <Button variant="outline">
-        //       <Factory className="h-4 w-4" />
-        //       Plant View
-        //     </Button>
-        //     <Button>
-        //       <Plus className="h-4 w-4" />
-        //       Quick Add
-        //     </Button>
-        //   </>
-        // }
+      // actions={
+      //   <>
+      //     <Button variant="outline">
+      //       <Factory className="h-4 w-4" />
+      //       Plant View
+      //     </Button>
+      //     <Button>
+      //       <Plus className="h-4 w-4" />
+      //       Quick Add
+      //     </Button>
+      //   </>
+      // }
       />
 
       {/* <section className="mb-6 overflow-hidden rounded-lg border bg-card shadow-sm">
@@ -127,14 +146,14 @@ export function DashboardPage() {
         ))}
       </section>
 
-      <section className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+      {/* <section className="mt-6 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
         <SectionCard title={t.dashboard.monthlySignals} description="Dummy operational data ready for API-backed analytics.">
           <MonthlySignalsChart />
         </SectionCard>
         <SectionCard title={t.dashboard.catalogMix} description="Portfolio spread across cable families.">
           <CatalogMixChart />
         </SectionCard>
-      </section>
+      </section> */}
 
       <section className="mt-6 grid gap-6 xl:grid-cols-3">
         {/* <SectionCard title={t.dashboard.recentActivity}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   BriefcaseBusiness,
   Building2,
@@ -24,6 +24,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePreferences } from "@/contexts/preferences-context";
 import { useToast } from "@/components/ui/toast";
+import { adminApi } from "@/services/admin-api";
+
 
 type Tab = "general" | "contact" | "social";
 type Errors = Record<string, string>;
@@ -36,12 +38,13 @@ export default function SiteSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("general");
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});
+  const [loading, setLoading] = useState(false);
   const [values, setValues] = useState({
     companyName: "Gujranwala Electric Wires",
     websiteTitle: "Premium Electric Wires & Cables",
     websiteDescription: "Manufacturing reliable electrical wires and cable solutions for homes, contractors, and industrial buyers.",
-    primaryPhone: "+92 300 0000000",
-    whatsappNumber: "+92 300 0000000",
+    primaryPhone: "+92 310 232432",
+    whatsappNumber: "+92 310 232432",
     email: "info@gujranwalaelectricwires.com",
     officeAddress: "Gujranwala, Punjab, Pakistan",
     googleMapsEmbedUrl: "",
@@ -60,6 +63,38 @@ export default function SiteSettingsPage() {
     ],
     [t],
   );
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadSettings = async () => {
+      try {
+        const data = await adminApi<{ settings: any }>("/api/site-settings");
+        if (!isMounted || !data?.settings) return;
+        const s = data.settings;
+        setValues({
+          companyName: s.companyName || "",
+          websiteTitle: "Premium Electric Wires & Cables",
+          websiteDescription: "Manufacturing reliable electrical wires and cable solutions for homes, contractors, and industrial buyers.",
+          primaryPhone: s.phone || "",
+          whatsappNumber: s.whatsappNumber || "",
+          email: s.email || "",
+          officeAddress: s.address || "",
+          googleMapsEmbedUrl: s.mapEmbedUrl || "",
+          facebook: s.facebookUrl || "",
+          instagram: s.instagramUrl || "",
+          linkedIn: s.linkedinUrl || "",
+          tikTok: s.tiktokUrl || "",
+          youTube: s.youtubeUrl || "",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    void loadSettings();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function updateValue(field: keyof typeof values, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -101,16 +136,46 @@ export default function SiteSettingsPage() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!validate()) return;
 
-    toast({
-      title: t.siteSettings.settingsSaved,
-      description: t.siteSettings.settingsSavedDescription,
-      variant: "success",
-    });
+    setLoading(true);
+    try {
+      const payload = {
+        companyName: values.companyName,
+        address: values.officeAddress,
+        phone: values.primaryPhone,
+        whatsappNumber: values.whatsappNumber,
+        email: values.email || null,
+        facebookUrl: values.facebook || null,
+        instagramUrl: values.instagram || null,
+        linkedinUrl: values.linkedIn || null,
+        youtubeUrl: values.youTube || null,
+        mapEmbedUrl: values.googleMapsEmbedUrl || null,
+      };
+
+      await adminApi("/api/site-settings", {
+        method: "POST",
+        body: payload,
+      });
+
+      toast({
+        title: t.siteSettings.settingsSaved,
+        description: t.siteSettings.settingsSavedDescription,
+        variant: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error saving settings",
+        description: err instanceof Error ? err.message : "Request failed",
+        variant: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleLogoUpload(event: React.ChangeEvent<HTMLInputElement>) {
@@ -118,6 +183,7 @@ export default function SiteSettingsPage() {
     if (!file) return;
     setLogoPreview(URL.createObjectURL(file));
   }
+
 
   return (
     <div>

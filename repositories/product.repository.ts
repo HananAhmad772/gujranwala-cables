@@ -34,6 +34,7 @@ function buildProductData(payload: CreateProductRequest | UpdateProductRequest) 
   if (payload.application !== undefined) data.application = payload.application;
   if (payload.price !== undefined) data.price = payload.price;
   if (payload.stockStatus !== undefined) data.stockStatus = payload.stockStatus;
+  if (payload.isActive !== undefined) data.isActive = payload.isActive;
   if (payload.featuredImage !== undefined) data.featuredImage = payload.featuredImage;
   if (payload.metaTitle !== undefined) data.metaTitle = payload.metaTitle;
   if (payload.metaDescription !== undefined) data.metaDescription = payload.metaDescription;
@@ -59,6 +60,7 @@ function buildProductWhere(query: ProductListQuery): Prisma.ProductWhereInput {
     ...(query.categoryId ? { categoryId: query.categoryId } : {}),
     ...(query.stockStatus ? { stockStatus: query.stockStatus } : {}),
     ...(query.featured ? { featuredImage: { not: null } } : {}),
+    ...(query.isActive !== undefined ? { isActive: query.isActive } : {}),
   };
 }
 

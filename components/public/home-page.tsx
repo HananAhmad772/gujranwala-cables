@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { BlogCard, BrandCard, ProductCard, ReviewCard } from "@/components/public/cards";
 import { CTABanner } from "@/components/public/cta-banner";
 import { HeroCarousel } from "@/components/public/hero-carousel";
@@ -11,10 +12,89 @@ import { usePublicLocale } from "@/components/public/localized";
 import { FadeIn } from "@/components/public/motion";
 import { PublicShell } from "@/components/public/public-shell";
 import { SectionHeading } from "@/components/public/section-heading";
-import { blogPosts, brands, categories, certifications, processSteps, products, reviews, stats, whyChoose } from "@/lib/public-data";
+import { blogPosts as staticBlogPosts, brands as staticBrands, categories, certifications, processSteps, products as staticProducts, reviews as staticReviews, stats, whyChoose } from "@/lib/public-data";
+import type { ApiBlog, ApiBrand, ApiProduct, ApiReview } from "@/lib/public-api";
+
+// Transform API product → card shape
+function toProductCard(p: ApiProduct) {
+  return {
+    slug: p.slug,
+    name: { en: p.name, ur: p.name },
+    category: { en: p.category?.name ?? "", ur: p.category?.name ?? "" },
+    summary: { en: p.description.slice(0, 120), ur: p.description.slice(0, 120) },
+    description: { en: p.description, ur: p.description },
+    image: p.featuredImage ?? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1400&q=82",
+    rating: 4.8,
+    specs: Array.isArray(p.specs) ? p.specs.map((s) => ({ label: { en: s.label, ur: s.label }, value: { en: s.value, ur: s.value } })) : [],
+    features: [],
+    applications: [],
+  };
+}
+
+// Transform API brand → card shape
+function toBrandCard(b: ApiBrand) {
+  return {
+    name: b.name,
+    description: { en: b.description ?? "", ur: b.description ?? "" },
+  };
+}
+
+// Transform API blog → card shape
+function toBlogCard(b: ApiBlog) {
+  return {
+    slug: b.slug,
+    title: { en: b.title, ur: b.title },
+    excerpt: { en: b.excerpt ?? "", ur: b.excerpt ?? "" },
+    body: [],
+    image: b.featuredImage ?? "https://images.unsplash.com/photo-1581091014534-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
+    date: b.publishedAt ? b.publishedAt.slice(0, 10) : b.createdAt.slice(0, 10),
+    readTime: { en: "5 min read", ur: "5 منٹ مطالعہ" },
+    category: { en: "", ur: "" },
+  };
+}
+
+// Transform API review → card shape
+function toReviewCard(r: ApiReview) {
+  return {
+    name: { en: r.name, ur: r.name },
+    role: { en: "Customer", ur: "کسٹمر" },
+    quote: { en: r.comment, ur: r.comment },
+  };
+}
 
 export function HomePage() {
   const { text, locale } = usePublicLocale();
+  const [liveProducts, setLiveProducts] = useState<ApiProduct[] | null>(null);
+  const [liveBrands, setLiveBrands] = useState<ApiBrand[] | null>(null);
+  const [liveBlogs, setLiveBlogs] = useState<ApiBlog[] | null>(null);
+  const [liveReviews, setLiveReviews] = useState<ApiReview[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/products?page=1&limit=6&isActive=true")
+      .then((r) => r.ok ? r.json() : null)
+      .then((j) => j?.success && setLiveProducts(j.data.products))
+      .catch(() => null);
+
+    fetch("/api/brands?page=1&limit=6&isActive=true")
+      .then((r) => r.ok ? r.json() : null)
+      .then((j) => j?.success && setLiveBrands(j.data.brands))
+      .catch(() => null);
+
+    fetch("/api/blogs?page=1&limit=3&status=PUBLISHED")
+      .then((r) => r.ok ? r.json() : null)
+      .then((j) => j?.success && setLiveBlogs(j.data.blogs))
+      .catch(() => null);
+
+    fetch("/api/reviews?page=1&limit=6&status=APPROVED")
+      .then((r) => r.ok ? r.json() : null)
+      .then((j) => j?.success && setLiveReviews(j.data.reviews))
+      .catch(() => null);
+  }, []);
+
+  const displayProducts = liveProducts && liveProducts.length > 0 ? liveProducts.map(toProductCard) : staticProducts;
+  const displayBrands = liveBrands && liveBrands.length > 0 ? liveBrands.map(toBrandCard) : staticBrands;
+  const displayBlogs = liveBlogs && liveBlogs.length > 0 ? liveBlogs.map(toBlogCard) : staticBlogPosts;
+  const displayReviews = liveReviews && liveReviews.length > 0 ? liveReviews.map(toReviewCard) : staticReviews;
 
   return (
     <PublicShell>
@@ -28,7 +108,7 @@ export function HomePage() {
             description={{ en: "A focused catalog for contractors, dealers, builders, and industrial buyers.", ur: "کنٹریکٹرز، ڈیلرز، بلڈرز اور صنعتی خریداروں کے لیے فوکسڈ کیٹلاگ۔" }}
           />
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {products.map((product, index) => (
+            {displayProducts.map((product, index) => (
               <FadeIn key={product.slug} delay={index * 0.08}>
                 <ProductCard product={product} />
               </FadeIn>
@@ -139,7 +219,7 @@ export function HomePage() {
             </Link>
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {brands.map((brand) => <BrandCard key={brand.name} brand={brand} />)}
+            {displayBrands.map((brand) => <BrandCard key={brand.name} brand={brand} />)}
           </div>
         </div>
       </section>
@@ -148,7 +228,7 @@ export function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <SectionHeading eyebrow={{ en: "Knowledge Center", ur: "نالج سینٹر" }} title={{ en: "Practical guidance for better electrical decisions.", ur: "بہتر الیکٹریکل فیصلوں کے لیے عملی رہنمائی۔" }} />
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {blogPosts.map((post) => <BlogCard key={post.slug} post={post} />)}
+            {displayBlogs.map((post) => <BlogCard key={post.slug} post={post} />)}
           </div>
         </div>
       </section>
@@ -157,7 +237,7 @@ export function HomePage() {
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <SectionHeading eyebrow={{ en: "Customer Reviews", ur: "کسٹمر ریویوز" }} title={{ en: "Trusted by teams who install under pressure.", ur: "دباؤ میں انسٹال کرنے والی ٹیموں کا اعتماد۔" }} align="center" />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {reviews.map((review) => <ReviewCard key={text(review.name)} review={review} />)}
+            {displayReviews.map((review, i) => <ReviewCard key={i} review={review} />)}
           </div>
           <div className="mt-10 rounded-lg border bg-card p-6 shadow-sm">
             <SectionHeading eyebrow={{ en: "Leave a review", ur: "رائے دیں" }} title={{ en: "Share your experience with our supply team.", ur: "ہمارے سپلائی ٹیم کے ساتھ اپنا تجربہ بانٹیں۔" }} align="center" />

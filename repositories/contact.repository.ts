@@ -63,3 +63,11 @@ export async function updateContactStatus(id: string, status: ContactStatus) {
     data: { status },
   });
 }
+
+export async function deleteContact(id: string) {
+  return prisma.contactSubmission.delete({
+    where: { id },
+    select: { id: true },
+  });
+}
+

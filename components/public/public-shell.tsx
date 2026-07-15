@@ -18,6 +18,7 @@ import { useState } from "react";
 import { company, products } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
 import { usePublicLocale } from "@/components/public/localized";
+import { SocialLinks } from "@/components/public/interactive";
 
 const navItems = [
   { href: "/", label: { en: "Home", ur: "ہوم" } },
@@ -160,11 +161,7 @@ export function Footer() {
           <BrandMark inverted />
           <p className="max-w-sm text-sm leading-7 text-slate-300">{text(company.tagline)}</p>
           <div className="flex gap-2">
-            {["Fb", "Ig", "In", "Yt"].map((label) => (
-              <a key={label} href="#" className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-xs font-black text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label={`${label} social link`}>
-                {label}
-              </a>
-            ))}
+            <SocialLinks />
           </div>
         </div>
         <div>
@@ -193,12 +190,12 @@ export function Footer() {
             <span>{company.phone}</span>
             <span>{company.whatsapp}</span>
             <span>{company.email}</span>
-            <span>{text(company.address)}</span>
+            <span>New Bilal Ganj Market, Sheikhupura Road, Gujranwala, Punjab, Pakistan</span>
           </div>
           <div className="mt-5 overflow-hidden rounded-md border border-white/10">
             <iframe
               title="Gujranwala Electric Wires map preview"
-              src="https://www.google.com/maps?q=Gujranwala%20Pakistan&output=embed"
+              src="https://www.google.com/maps?q=New%20Bilal%20Ganj%20Market%2C%20Sheikhupura%20Road%2C%20Gujranwala%2C%20Pakistan&output=embed"
               className="h-32 w-full"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { usePreferences } from "@/contexts/preferences-context";
 import { adminApi } from "@/services/admin-api";
+import { ImageUpload } from "@/components/admin/image-upload";
 
 type ContactStatus = "New" | "Contacted" | "Closed";
 type ReviewStatus = "Pending" | "Approved" | "Rejected";
@@ -372,8 +373,32 @@ function formatCategoryRow(category: {
   };
 }
 
+function mapContactStatusToUi(status: string): ContactStatus {
+  if (status === "CONTACTED") return "Contacted";
+  if (status === "CLOSED") return "Closed";
+  return "New";
+}
+
+function mapContactStatusToApi(status: ContactStatus): "NEW" | "CONTACTED" | "CLOSED" {
+  if (status === "Contacted") return "CONTACTED";
+  if (status === "Closed") return "CLOSED";
+  return "NEW";
+}
+
+function formatContactRow(contact: any): ContactRow {
+  return {
+    id: contact.id,
+    fullName: contact.name,
+    phone: contact.phone ?? "",
+    email: contact.email,
+    description: contact.message,
+    status: mapContactStatusToUi(contact.status),
+    createdAt: contact.createdAt ? contact.createdAt.slice(0, 10) : getToday(),
+  };
+}
+
 export function ContactMessagesWorkspace() {
-  const [rows, setRows] = useState<ContactRow[]>(contactRows);
+  const [rows, setRows] = useState<ContactRow[]>([]);
   const [status, setStatus] = useState("All");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ContactRow | null>(null);
@@ -387,7 +412,23 @@ export function ContactMessagesWorkspace() {
     createdAt: getToday(),
   });
   const [editingId, setEditingId] = useState<string | null>(null);
-  const visibleRows = useMemo(() => (status === "All" ? rows : rows.filter((row) => row.status === status)), [rows, status]);
+  const [loading, setLoading] = useState(false);
+
+  const loadContacts = async () => {
+    setLoading(true);
+    try {
+      const data = await adminApi<{ contacts: any[] }>("/api/contacts?page=1&limit=100");
+      setRows(data.contacts.map(formatContactRow));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadContacts();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
@@ -401,19 +442,71 @@ export function ContactMessagesWorkspace() {
     setFormOpen(true);
   };
 
-  const saveEntry = (event: React.FormEvent) => {
+  const saveEntry = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.fullName.trim() || !draft.phone.trim() || !draft.email.trim() || !draft.description.trim()) return;
 
-    if (editingId) {
-      setRows((current) => current.map((row) => (row.id === editingId ? { ...row, ...draft } : row)));
-    } else {
-      setRows((current) => [{ ...draft, id: createEntityId("inq") }, ...current]);
+    setLoading(true);
+    try {
+      if (editingId) {
+        const result = await adminApi<{ contact: any }>(`/api/contacts/${editingId}`, {
+          method: "PATCH",
+          body: {
+            status: mapContactStatusToApi(draft.status)
+          }
+        });
+        setRows((current) => current.map((row) => (row.id === editingId ? formatContactRow(result.contact) : row)));
+      } else {
+        const result = await adminApi<{ contact: any }>("/api/contacts", {
+          method: "POST",
+          body: {
+            name: draft.fullName,
+            phone: draft.phone,
+            email: draft.email,
+            message: draft.description,
+          }
+        });
+        setRows((current) => [formatContactRow(result.contact), ...current]);
+      }
+      setFormOpen(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    setFormOpen(false);
-    setEditingId(null);
   };
+
+  const updateStatus = async (row: ContactRow, nextStatus: ContactStatus) => {
+    setLoading(true);
+    try {
+      const result = await adminApi<{ contact: any }>(`/api/contacts/${row.id}`, {
+        method: "PATCH",
+        body: { status: mapContactStatusToApi(nextStatus) }
+      });
+      setRows((current) => current.map((item) => (item.id === row.id ? formatContactRow(result.contact) : item)));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await adminApi(`/api/contacts/${deleteTarget.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const visibleRows = useMemo(() => (status === "All" ? rows : rows.filter((row) => row.status === status)), [rows, status]);
 
   const columns: DataTableColumn<ContactRow>[] = [
     { key: "fullName", header: "Full Name", render: (row) => <span className="font-medium">{row.fullName}</span> },
@@ -423,7 +516,7 @@ export function ContactMessagesWorkspace() {
     {
       key: "status",
       header: "Status",
-      render: (row) => <StatusSelect value={row.status} options={["New", "Contacted", "Closed"]} onChange={(value) => setRows((current) => current.map((item) => (item.id === row.id ? { ...item, status: value } : item)))} />,
+      render: (row) => <StatusSelect value={row.status} options={["New", "Contacted", "Closed"]} onChange={(value) => void updateStatus(row, value)} />,
     },
     { key: "createdAt", header: "Created At", render: (row) => <span className="text-muted-foreground">{row.createdAt}</span> },
     {
@@ -493,7 +586,7 @@ export function ContactMessagesWorkspace() {
             <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save changes" : "Create inquiry"}</Button>
+            <Button type="submit" disabled={loading}>{editingId ? "Save changes" : "Create inquiry"}</Button>
           </div>
         </form>
       </Dialog>
@@ -506,10 +599,7 @@ export function ContactMessagesWorkspace() {
         cancelText="Cancel"
         destructive
         onConfirm={() => {
-          if (deleteTarget) {
-            setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
-          }
-          setDeleteTarget(null);
+          void handleDelete();
         }}
         onClose={() => setDeleteTarget(null)}
       >
@@ -519,12 +609,38 @@ export function ContactMessagesWorkspace() {
   );
 }
 
+function formatFAQRow(faq: any): FAQRow {
+  return {
+    id: faq.id,
+    question: faq.question,
+    answer: faq.answer,
+    createdAt: faq.createdAt ? faq.createdAt.slice(0, 10) : getToday(),
+  };
+}
+
 export function FAQsWorkspace() {
-  const [rows, setRows] = useState<FAQRow[]>(faqRows);
+  const [rows, setRows] = useState<FAQRow[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<FAQRow | null>(null);
   const [draft, setDraft] = useState<FAQRow>({ id: createEntityId("faq"), question: "", answer: "", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadFAQs = async () => {
+    setLoading(true);
+    try {
+      const data = await adminApi<{ faqs: any[] }>("/api/faqs?page=1&limit=100");
+      setRows(data.faqs.map(formatFAQRow));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadFAQs();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
@@ -538,18 +654,51 @@ export function FAQsWorkspace() {
     setFormOpen(true);
   };
 
-  const saveEntry = (event: React.FormEvent) => {
+  const saveEntry = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.question.trim() || !draft.answer.trim()) return;
 
-    if (editingId) {
-      setRows((current) => current.map((row) => (row.id === editingId ? { ...row, ...draft } : row)));
-    } else {
-      setRows((current) => [{ ...draft, id: createEntityId("faq") }, ...current]);
-    }
+    setLoading(true);
+    try {
+      const payload = {
+        question: draft.question,
+        answer: draft.answer,
+      };
 
-    setFormOpen(false);
-    setEditingId(null);
+      if (editingId) {
+        const result = await adminApi<{ faq: any }>(`/api/faqs/${editingId}`, {
+          method: "PATCH",
+          body: payload,
+        });
+        setRows((current) => current.map((row) => (row.id === editingId ? formatFAQRow(result.faq) : row)));
+      } else {
+        const result = await adminApi<{ faq: any }>("/api/faqs", {
+          method: "POST",
+          body: payload,
+        });
+        setRows((current) => [formatFAQRow(result.faq), ...current]);
+      }
+      setFormOpen(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await adminApi(`/api/faqs/${deleteTarget.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: DataTableColumn<FAQRow>[] = [
@@ -584,12 +733,12 @@ export function FAQsWorkspace() {
             <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save changes" : "Create FAQ"}</Button>
+            <Button type="submit" disabled={loading}>{editingId ? "Save changes" : "Create FAQ"}</Button>
           </div>
         </form>
       </Dialog>
 
-      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete FAQ" description="This will remove the FAQ from the public site." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { if (deleteTarget) setRows((current) => current.filter((row) => row.id !== deleteTarget.id)); setDeleteTarget(null); }} onClose={() => setDeleteTarget(null)}>
+      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete FAQ" description="This will remove the FAQ from the public site." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { void handleDelete(); }} onClose={() => setDeleteTarget(null)}>
         Delete this FAQ permanently?
       </ConfirmDialog>
     </div>
@@ -822,13 +971,45 @@ export function ReviewsWorkspace() {
   );
 }
 
+function formatBlogRow(post: any): BlogRow {
+  const wordCount = post.content ? post.content.split(/\s+/).length : 0;
+  const readingTime = `${Math.max(1, Math.ceil(wordCount / 200))} min`;
+  return {
+    id: post.id,
+    featuredImage: post.featuredImage ?? "",
+    title: post.title,
+    subtitle: post.excerpt ?? "",
+    content: post.content,
+    readingTime,
+    publishedDate: post.publishedAt ? post.publishedAt.slice(0, 10) : getToday(),
+    status: post.status === "PUBLISHED" ? "Published" : "Draft",
+  };
+}
+
 export function BlogsWorkspace() {
-  const [rows, setRows] = useState<BlogRow[]>(blogRows);
+  const [rows, setRows] = useState<BlogRow[]>([]);
   const [selected, setSelected] = useState<BlogRow | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<BlogRow | null>(null);
   const [draft, setDraft] = useState<BlogRow>({ id: createEntityId("blog"), featuredImage: "", title: "", subtitle: "", content: "", readingTime: "", publishedDate: getToday(), status: "Draft" });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadBlogs = async () => {
+    setLoading(true);
+    try {
+      const data = await adminApi<{ blogs: any[] }>("/api/blogs?page=1&limit=100");
+      setRows(data.blogs.map(formatBlogRow));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadBlogs();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
@@ -842,18 +1023,60 @@ export function BlogsWorkspace() {
     setFormOpen(true);
   };
 
-  const saveEntry = (event: React.FormEvent) => {
+  const saveEntry = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.title.trim() || !draft.subtitle.trim() || !draft.content.trim()) return;
 
-    if (editingId) {
-      setRows((current) => current.map((row) => (row.id === editingId ? { ...row, ...draft } : row)));
-    } else {
-      setRows((current) => [{ ...draft, id: createEntityId("blog") }, ...current]);
-    }
+    setLoading(true);
+    try {
+      const payload = {
+        title: draft.title,
+        slug: toSlug(draft.title) || createEntityId("blog"),
+        excerpt: draft.subtitle,
+        content: draft.content,
+        featuredImage: draft.featuredImage || null,
+        status: draft.status === "Published" ? "PUBLISHED" : "DRAFT",
+        publishedAt: draft.status === "Published" ? new Date().toISOString() : null,
+      };
 
-    setFormOpen(false);
-    setEditingId(null);
+      if (editingId) {
+        const result = await adminApi<{ blog: any }>(`/api/blogs/${editingId}`, {
+          method: "PATCH",
+          body: payload,
+        });
+        setRows((current) => current.map((row) => (row.id === editingId ? formatBlogRow(result.blog) : row)));
+        if (selected?.id === editingId) {
+          setSelected(formatBlogRow(result.blog));
+        }
+      } else {
+        const result = await adminApi<{ blog: any }>("/api/blogs", {
+          method: "POST",
+          body: payload,
+        });
+        setRows((current) => [formatBlogRow(result.blog), ...current]);
+      }
+      setFormOpen(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await adminApi(`/api/blogs/${deleteTarget.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
+      if (selected?.id === deleteTarget.id) setSelected(null);
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: DataTableColumn<BlogRow>[] = [
@@ -877,7 +1100,7 @@ export function BlogsWorkspace() {
           <SectionCard
             title={selected.title}
             description={selected.subtitle}
-            action={<RowActions onEdit={() => openEdit(selected)} onDelete={() => { setDeleteTarget(selected); setSelected(null); }} />}
+            action={<RowActions onEdit={() => openEdit(selected)} onDelete={() => { setDeleteTarget(selected); }} />}
           >
             <div className="grid gap-5 lg:grid-cols-[120px_1fr]">
               <Thumbnail src={selected.featuredImage} label={selected.title} />
@@ -899,7 +1122,11 @@ export function BlogsWorkspace() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="blog-image">Featured Image</Label>
-              <Input id="blog-image" value={draft.featuredImage} onChange={(event) => setDraft((current) => ({ ...current, featuredImage: event.target.value }))} />
+              <ImageUpload
+                value={draft.featuredImage}
+                onChange={(url) => setDraft((current) => ({ ...current, featuredImage: url }))}
+                label="Blog Featured Image"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="blog-title">Title</Label>
@@ -936,12 +1163,12 @@ export function BlogsWorkspace() {
             <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save changes" : "Create blog"}</Button>
+            <Button type="submit" disabled={loading}>{editingId ? "Save changes" : "Create blog"}</Button>
           </div>
         </form>
       </Dialog>
 
-      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete blog" description="This will remove the blog from the knowledge center." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { if (deleteTarget) { setRows((current) => current.filter((row) => row.id !== deleteTarget.id)); if (selected?.id === deleteTarget.id) setSelected(null); } setDeleteTarget(null); }} onClose={() => setDeleteTarget(null)}>
+      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete blog" description="This will remove the blog from the knowledge center." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { void handleDelete(); }} onClose={() => setDeleteTarget(null)}>
         Delete this blog permanently?
       </ConfirmDialog>
     </div>
@@ -1144,12 +1371,40 @@ export function CategoriesWorkspace() {
   );
 }
 
+function formatBrandRow(brand: any): BrandRow {
+  return {
+    id: brand.id,
+    logo: brand.logoUrl ?? "",
+    brandName: brand.name,
+    description: brand.description ?? "",
+    status: brand.isActive ? "Active" : "Inactive",
+    createdAt: brand.createdAt ? brand.createdAt.slice(0, 10) : getToday(),
+  };
+}
+
 export function BrandsWorkspace() {
-  const [rows, setRows] = useState<BrandRow[]>(brandRows);
+  const [rows, setRows] = useState<BrandRow[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<BrandRow | null>(null);
   const [draft, setDraft] = useState<BrandRow>({ id: createEntityId("brand"), logo: "", brandName: "", description: "", status: "Active", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadBrands = async () => {
+    setLoading(true);
+    try {
+      const data = await adminApi<{ brands: any[] }>("/api/brands?page=1&limit=100");
+      setRows(data.brands.map(formatBrandRow));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadBrands();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
@@ -1163,25 +1418,81 @@ export function BrandsWorkspace() {
     setFormOpen(true);
   };
 
-  const saveEntry = (event: React.FormEvent) => {
+  const saveEntry = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!draft.brandName.trim() || !draft.description.trim()) return;
 
-    if (editingId) {
-      setRows((current) => current.map((row) => (row.id === editingId ? { ...row, ...draft } : row)));
-    } else {
-      setRows((current) => [{ ...draft, id: createEntityId("brand") }, ...current]);
-    }
+    setLoading(true);
+    try {
+      const payload = {
+        name: draft.brandName,
+        slug: toSlug(draft.brandName) || createEntityId("brand"),
+        description: draft.description,
+        logoUrl: draft.logo || null,
+        isActive: draft.status === "Active",
+      };
 
-    setFormOpen(false);
-    setEditingId(null);
+      if (editingId) {
+        const result = await adminApi<{ brand: any }>(`/api/brands/${editingId}`, {
+          method: "PATCH",
+          body: payload,
+        });
+        setRows((current) => current.map((row) => (row.id === editingId ? formatBrandRow(result.brand) : row)));
+      } else {
+        const result = await adminApi<{ brand: any }>("/api/brands", {
+          method: "POST",
+          body: payload,
+        });
+        setRows((current) => [formatBrandRow(result.brand), ...current]);
+      }
+      setFormOpen(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (row: BrandRow, nextStatus: ActiveStatus) => {
+    setLoading(true);
+    try {
+      const result = await adminApi<{ brand: any }>(`/api/brands/${row.id}`, {
+        method: "PATCH",
+        body: {
+          name: row.brandName,
+          slug: toSlug(row.brandName) || `brand-${row.id}`,
+          description: row.description,
+          isActive: nextStatus === "Active",
+        }
+      });
+      setRows((current) => current.map((item) => (item.id === row.id ? formatBrandRow(result.brand) : item)));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await adminApi(`/api/brands/${deleteTarget.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: DataTableColumn<BrandRow>[] = [
-    { key: "logo", header: "Logo", render: (row) => <LogoMark label={row.logo} /> },
+    { key: "logo", header: "Logo", render: (row) => <Thumbnail src={row.logo || undefined} label={row.brandName} /> },
     { key: "brandName", header: "Brand Name", render: (row) => <span className="font-medium">{row.brandName}</span> },
     { key: "description", header: "Description", render: (row) => <span className="line-clamp-2 max-w-md text-muted-foreground">{row.description}</span> },
-    { key: "status", header: "Status", render: (row) => <StatusSelect value={row.status} options={["Active", "Inactive"]} onChange={(value) => setRows((current) => current.map((item) => (item.id === row.id ? { ...item, status: value } : item)))} /> },
+    { key: "status", header: "Status", render: (row) => <StatusSelect value={row.status} options={["Active", "Inactive"]} onChange={(value) => void updateStatus(row, value)} /> },
     { key: "createdAt", header: "Created At", render: (row) => <span className="text-muted-foreground">{row.createdAt}</span> },
     { key: "actions", header: "Actions", render: (row) => <RowActions onEdit={() => openEdit(row)} onDelete={() => setDeleteTarget(row)} /> },
   ];
@@ -1198,7 +1509,11 @@ export function BrandsWorkspace() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="brand-logo">Logo</Label>
-              <Input id="brand-logo" value={draft.logo} onChange={(event) => setDraft((current) => ({ ...current, logo: event.target.value }))} />
+              <ImageUpload
+                value={draft.logo}
+                onChange={(url) => setDraft((current) => ({ ...current, logo: url }))}
+                label="Brand Logo"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="brand-name">Brand Name</Label>
@@ -1227,28 +1542,77 @@ export function BrandsWorkspace() {
             <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save changes" : "Create brand"}</Button>
+            <Button type="submit" disabled={loading}>{editingId ? "Save changes" : "Create brand"}</Button>
           </div>
         </form>
       </Dialog>
 
-      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete brand" description="This will remove the brand from the catalog." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { if (deleteTarget) setRows((current) => current.filter((row) => row.id !== deleteTarget.id)); setDeleteTarget(null); }} onClose={() => setDeleteTarget(null)}>
+      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete brand" description="This will remove the brand from the catalog." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { void handleDelete(); }} onClose={() => setDeleteTarget(null)}>
         Delete this brand permanently?
       </ConfirmDialog>
     </div>
   );
 }
 
+function formatProductRow(product: any): ProductRow {
+  return {
+    id: product.id,
+    featuredImage: product.featuredImage ?? "",
+    title: product.name,
+    subtitle: product.size ?? "",
+    description: product.description ?? "",
+    category: product.category?.name ?? "",
+    brand: product.brand?.name ?? "",
+    status: product.isActive ? "Active" : "Inactive",
+    createdAt: product.createdAt ? product.createdAt.slice(0, 10) : getToday(),
+  };
+}
+
 export function ProductsWorkspace() {
-  const [rows, setRows] = useState<ProductRow[]>(productRows);
+  const [rows, setRows] = useState<ProductRow[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ProductRow | null>(null);
-  const [draft, setDraft] = useState<ProductRow>({ id: createEntityId("prod"), featuredImage: "", title: "", subtitle: "", description: "", category: "Building Wires", brand: "Premium Line", status: "Active", createdAt: getToday() });
+  const [draft, setDraft] = useState<ProductRow>({ id: createEntityId("prod"), featuredImage: "", title: "", subtitle: "", description: "", category: "", brand: "", status: "Active", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const [categories, setCategories] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+
+  const loadProductsAndRelations = async () => {
+    setLoading(true);
+    try {
+      const pData = await adminApi<{ products: any[] }>("/api/products?page=1&limit=100");
+      const cData = await adminApi<{ categories: any[] }>("/api/categories?page=1&limit=100");
+      const bData = await adminApi<{ brands: any[] }>("/api/brands?page=1&limit=100");
+      
+      setRows(pData.products.map(formatProductRow));
+      setCategories(cData.categories);
+      setBrands(bData.brands);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadProductsAndRelations();
+  }, []);
 
   const openCreate = () => {
     setEditingId(null);
-    setDraft({ id: createEntityId("prod"), featuredImage: "", title: "", subtitle: "", description: "", category: "Building Wires", brand: "Premium Line", status: "Active", createdAt: getToday() });
+    setDraft({ 
+      id: createEntityId("prod"), 
+      featuredImage: "", 
+      title: "", 
+      subtitle: "", 
+      description: "", 
+      category: categories[0]?.name ?? "", 
+      brand: brands[0]?.name ?? "", 
+      status: "Active", 
+      createdAt: getToday() 
+    });
     setFormOpen(true);
   };
 
@@ -1258,18 +1622,91 @@ export function ProductsWorkspace() {
     setFormOpen(true);
   };
 
-  const saveEntry = (event: React.FormEvent) => {
+  const saveEntry = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!draft.title.trim() || !draft.subtitle.trim() || !draft.description.trim()) return;
+    if (!draft.title.trim() || !draft.description.trim()) return;
 
-    if (editingId) {
-      setRows((current) => current.map((row) => (row.id === editingId ? { ...row, ...draft } : row)));
-    } else {
-      setRows((current) => [{ ...draft, id: createEntityId("prod") }, ...current]);
+    const catId = categories.find((c) => c.name === draft.category)?.id;
+    const brandId = brands.find((b) => b.name === draft.brand)?.id;
+
+    if (!catId || !brandId) {
+      alert("Please select a valid category and brand.");
+      return;
     }
 
-    setFormOpen(false);
-    setEditingId(null);
+    setLoading(true);
+    try {
+      const payload = {
+        name: draft.title,
+        slug: toSlug(draft.title) || createEntityId("product"),
+        description: draft.description,
+        size: draft.subtitle,
+        price: "100.00",
+        categoryId: catId,
+        brandId: brandId,
+        featuredImage: draft.featuredImage || null,
+        isActive: draft.status === "Active",
+      };
+
+      if (editingId) {
+        const result = await adminApi<{ product: any }>(`/api/products/${editingId}`, {
+          method: "PATCH",
+          body: payload,
+        });
+        setRows((current) => current.map((row) => (row.id === editingId ? formatProductRow(result.product) : row)));
+      } else {
+        const result = await adminApi<{ product: any }>("/api/products", {
+          method: "POST",
+          body: payload,
+        });
+        setRows((current) => [formatProductRow(result.product), ...current]);
+      }
+      setFormOpen(false);
+      setEditingId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateStatus = async (row: ProductRow, nextStatus: ProductStatus) => {
+    setLoading(true);
+    try {
+      const catId = categories.find((c) => c.name === row.category)?.id;
+      const brandId = brands.find((b) => b.name === row.brand)?.id;
+      
+      const result = await adminApi<{ product: any }>(`/api/products/${row.id}`, {
+        method: "PATCH",
+        body: {
+          name: row.title,
+          slug: toSlug(row.title) || `product-${row.id}`,
+          description: row.description,
+          categoryId: catId,
+          brandId: brandId,
+          isActive: nextStatus === "Active",
+        }
+      });
+      setRows((current) => current.map((item) => (item.id === row.id ? formatProductRow(result.product) : item)));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setLoading(true);
+    try {
+      await adminApi(`/api/products/${deleteTarget.id}`, { method: "DELETE" });
+      setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns: DataTableColumn<ProductRow>[] = [
@@ -1279,7 +1716,7 @@ export function ProductsWorkspace() {
     { key: "description", header: "Description", render: (row) => <span className="line-clamp-2 max-w-sm text-muted-foreground">{row.description}</span> },
     { key: "category", header: "Category", render: (row) => row.category },
     { key: "brand", header: "Brand", render: (row) => row.brand },
-    { key: "status", header: "Status", render: (row) => <StatusSelect value={row.status} options={["Active", "Inactive"]} onChange={(value) => setRows((current) => current.map((item) => (item.id === row.id ? { ...item, status: value } : item)))} /> },
+    { key: "status", header: "Status", render: (row) => <StatusSelect value={row.status} options={["Active", "Inactive"]} onChange={(value) => void updateStatus(row, value)} /> },
     { key: "createdAt", header: "Created At", render: (row) => <span className="text-muted-foreground">{row.createdAt}</span> },
     { key: "actions", header: "Actions", render: (row) => <RowActions onEdit={() => openEdit(row)} onDelete={() => setDeleteTarget(row)} /> },
   ];
@@ -1296,7 +1733,11 @@ export function ProductsWorkspace() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="product-image">Featured Image</Label>
-              <Input id="product-image" value={draft.featuredImage} onChange={(event) => setDraft((current) => ({ ...current, featuredImage: event.target.value }))} />
+              <ImageUpload
+                value={draft.featuredImage}
+                onChange={(url) => setDraft((current) => ({ ...current, featuredImage: url }))}
+                label="Product Featured Image"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="product-title">Title</Label>
@@ -1312,11 +1753,33 @@ export function ProductsWorkspace() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="product-category">Category</Label>
-              <Input id="product-category" value={draft.category} onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))} />
+              <select
+                id="product-category"
+                className="h-10 w-full rounded-md border bg-card px-3 text-sm"
+                value={draft.category}
+                onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))}
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="product-brand">Brand</Label>
-              <Input id="product-brand" value={draft.brand} onChange={(event) => setDraft((current) => ({ ...current, brand: event.target.value }))} />
+              <select
+                id="product-brand"
+                className="h-10 w-full rounded-md border bg-card px-3 text-sm"
+                value={draft.brand}
+                onChange={(event) => setDraft((current) => ({ ...current, brand: event.target.value }))}
+              >
+                {brands.map((b) => (
+                  <option key={b.id} value={b.name}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="product-status">Status</Label>
@@ -1337,12 +1800,12 @@ export function ProductsWorkspace() {
             <Button type="button" variant="outline" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">{editingId ? "Save changes" : "Create product"}</Button>
+            <Button type="submit" disabled={loading}>{editingId ? "Save changes" : "Create product"}</Button>
           </div>
         </form>
       </Dialog>
 
-      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete product" description="This will remove the product from the public catalog." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { if (deleteTarget) setRows((current) => current.filter((row) => row.id !== deleteTarget.id)); setDeleteTarget(null); }} onClose={() => setDeleteTarget(null)}>
+      <ConfirmDialog open={Boolean(deleteTarget)} title="Delete product" description="This will remove the product from the public catalog." confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => { void handleDelete(); }} onClose={() => setDeleteTarget(null)}>
         Delete this product permanently?
       </ConfirmDialog>
     </div>

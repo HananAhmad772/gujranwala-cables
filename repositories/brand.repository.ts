@@ -41,6 +41,7 @@ function buildBrandData(payload: CreateBrandRequest | UpdateBrandRequest) {
   if (payload.slug !== undefined) data.slug = payload.slug;
   if (payload.logoUrl !== undefined) data.logoUrl = payload.logoUrl;
   if (payload.description !== undefined) data.description = payload.description;
+  if (payload.isActive !== undefined) data.isActive = payload.isActive;
 
   return data;
 }
@@ -56,6 +57,7 @@ function buildBrandWhere(query: BrandListQuery): Prisma.BrandWhereInput {
           ],
         }
       : {}),
+    ...(query.isActive !== undefined ? { isActive: query.isActive } : {}),
   };
 }
 

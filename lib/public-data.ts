@@ -44,9 +44,9 @@ export type PublicBlogPost = {
 export const company = {
   name: { en: "Gujranwala Electric Wires", ur: "گوجرانوالہ الیکٹرک وائرز" },
   tagline: { en: "Premium electrical wires, cables, and accessories for wholesale and retail supply.", ur: "ہول سیل اور ریٹیل سپلائی کے لیے پریمیم الیکٹریکل وائرز، کیبلز اور اسیسریز۔" },
-  phone: "+92 55 428 1900",
-  whatsapp: "+92 300 864 1900",
-  email: "sales@gujranwalaelectric.com",
+  phone: "+92 310 232432",
+  whatsapp: "+92 311 0472352",
+  email: "admin@gujranwalaelectric.com",
   address: {
     en: "Industrial Estate, Gujranwala, Punjab, Pakistan",
     ur: "انڈسٹریل اسٹیٹ، گوجرانوالہ، پنجاب، پاکستان",
@@ -61,8 +61,7 @@ export const heroSlides = [
       en: "Wholesale and retail supply of premium electrical wires, cables, accessories, and project-ready products.",
       ur: "پریمیم الیکٹریکل وائرز، کیبلز، اسیسریز اور پراجیکٹ مصنوعات کی ہول سیل اور ریٹیل سپلائی۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=2200&q=85",
+    image: "/uploads/placeholders/hero-warehouse.jpg",
   },
   {
     eyebrow: { en: "Tested for demanding sites", ur: "مشکل سائٹس کے لیے ٹیسٹ شدہ" },
@@ -71,8 +70,7 @@ export const heroSlides = [
       en: "We help customers select reliable branded products with clear specifications, fair dealing, and dependable availability for every site.",
       ur: "ہم ہر سائٹ کے لیے واضح اسپیسفکیشنز، مناسب ڈیلنگ اور قابل اعتماد دستیابی کے ساتھ برانڈڈ مصنوعات منتخب کرنے میں مدد دیتے ہیں۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&w=2200&q=85",
+    image: "/uploads/placeholders/hero-industrial.jpg",
   },
   {
     eyebrow: { en: "Built for contractors", ur: "کنٹریکٹرز کے لیے تیار" },
@@ -81,8 +79,7 @@ export const heroSlides = [
       en: "A responsive team, practical technical guidance, and a portfolio designed for real installation conditions and fast project delivery.",
       ur: "فوری رسپانس، عملی تکنیکی رہنمائی، اور حقیقی انسٹالیشن حالات اور تیز پراجیکٹ ڈیلیوری کے لیے ڈیزائن کردہ پورٹ فولیو۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=2200&q=85",
+    image: "/uploads/placeholders/hero-construction.jpg",
   },
 ] as const;
 
@@ -119,8 +116,7 @@ export const products: PublicProduct[] = [
       en: "A dependable building wire range designed for contractors who need clean stripping, steady insulation quality, and predictable current carrying performance.",
       ur: "کنٹریکٹرز کے لیے ایک قابل اعتماد بلڈنگ وائر رینج جس میں صاف اسٹرپنگ، مستقل انسولیشن اور مستحکم کارکردگی شامل ہے۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/product-copper-wire.jpg",
     rating: 4.9,
     specs: [
       { label: { en: "Conductor", ur: "کنڈکٹر" }, value: { en: "Annealed copper", ur: "اینیلڈ کاپر" } },
@@ -147,8 +143,7 @@ export const products: PublicProduct[] = [
       en: "Designed for practical power distribution where mechanical durability, conductor integrity, and predictable supply are essential.",
       ur: "پاور ڈسٹری بیوشن کے لیے ڈیزائن کیا گیا جہاں مکینیکل پائیداری، کنڈکٹر سالمیت اور قابل اعتماد سپلائی ضروری ہیں۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/product-low-voltage-cable.jpg",
     rating: 4.8,
     specs: [
       { label: { en: "Cores", ur: "کورز" }, value: { en: "2C to 4C", ur: "2C سے 4C" } },
@@ -175,8 +170,7 @@ export const products: PublicProduct[] = [
       en: "A safety-forward cable option for buildings where circuit continuity and reduced flame spread are key design requirements.",
       ur: "ایسی عمارتوں کے لیے سیفٹی فوکسڈ کیبل جہاں سرکٹ کنٹینیوٹی اور کم فلیم اسپریڈ اہم تقاضے ہیں۔",
     },
-    image:
-      "https://images.unsplash.com/photo-1581092919535-7146ff1a590b?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/product-fire-safe-cable.jpg",
     rating: 4.7,
     specs: [
       { label: { en: "Use", ur: "استعمال" }, value: { en: "Critical circuits", ur: "اہم سرکٹس" } },
@@ -233,8 +227,7 @@ export const blogPosts: PublicBlogPost[] = [
       { en: "Cable sizing starts with the actual load profile, not only the connected equipment list. Contractors should consider current demand, future expansion, installation method, and ambient temperature.", ur: "کیبل سائزنگ اصل لوڈ پروفائل سے شروع ہوتی ہے، صرف آلات کی فہرست سے نہیں۔ کنٹریکٹرز کو کرنٹ ڈیمانڈ، مستقبل کی توسیع، انسٹالیشن طریقہ اور درجہ حرارت دیکھنا چاہیے۔" },
       { en: "Voltage drop and route length can change the final selection. Good documentation and product markings make installation teams faster and reduce rework on site.", ur: "وولٹیج ڈراپ اور روٹ لمبائی حتمی انتخاب بدل سکتے ہیں۔ اچھی ڈاکیومنٹیشن اور پروڈکٹ مارکنگ ٹیموں کو تیز بناتی ہے اور ری ورک کم کرتی ہے۔" },
     ],
-    image:
-      "https://images.unsplash.com/photo-1581091014534-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/blog-cable-sizing.jpg",
     date: "2026-06-18",
     readTime: { en: "5 min read", ur: "5 منٹ مطالعہ" },
     category: { en: "Engineering", ur: "انجینئرنگ" },
@@ -247,8 +240,7 @@ export const blogPosts: PublicBlogPost[] = [
       { en: "Good insulation is more than a colored outer layer. It supports electrical safety, helps wires survive site handling, and makes everyday installation smoother.", ur: "اچھی انسولیشن صرف رنگین بیرونی لیئر نہیں۔ یہ برقی حفاظت، سائٹ ہینڈلنگ اور روزمرہ انسٹالیشن کو بہتر بناتی ہے۔" },
       { en: "Batch consistency, visible markings, and clean stripping behavior all help contractors deliver cleaner work with fewer delays.", ur: "بیچ مستقل مزاجی، واضح مارکنگ اور صاف اسٹرپنگ کنٹریکٹرز کو کم تاخیر کے ساتھ بہتر کام کرنے میں مدد دیتی ہے۔" },
     ],
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/blog-insulation-quality.jpg",
     date: "2026-05-27",
     readTime: { en: "4 min read", ur: "4 منٹ مطالعہ" },
     category: { en: "Quality", ur: "کوالٹی" },
@@ -261,8 +253,7 @@ export const blogPosts: PublicBlogPost[] = [
       { en: "Buying from trusted electrical brands helps customers compare specifications, understand product use, and avoid low-quality alternatives.", ur: "قابل اعتماد الیکٹریکل برانڈز سے خریداری صارفین کو اسپیسفکیشنز سمجھنے، استعمال جاننے اور کم معیار متبادل سے بچنے میں مدد دیتی ہے۔" },
       { en: "For buyers, a reliable supplier should provide clear product details, responsive service, and suitable options for both retail and wholesale needs.", ur: "خریداروں کے لیے قابل اعتماد سپلائر کو واضح پروڈکٹ تفصیل، فوری سروس اور ریٹیل و ہول سیل ضروریات کے لیے مناسب آپشنز دینے چاہئیں۔" },
     ],
-    image:
-      "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
+    image: "/uploads/placeholders/blog-buying-guide.jpg",
     date: "2026-04-12",
     readTime: { en: "6 min read", ur: "6 منٹ مطالعہ" },
     category: { en: "Buying Guide", ur: "خریداری گائیڈ" },

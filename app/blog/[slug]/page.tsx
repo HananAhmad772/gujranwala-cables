@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { BlogDetailsPage } from "@/components/public/pages";
 import { blogPosts } from "@/lib/public-data";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
