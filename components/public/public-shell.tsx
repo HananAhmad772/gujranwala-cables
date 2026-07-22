@@ -18,6 +18,7 @@ import { useState } from "react";
 import { company, products } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
 import { usePublicLocale } from "@/components/public/localized";
+import { useSiteSettings } from "@/components/providers/site-settings-provider";
 import { SocialLinks } from "@/components/public/interactive";
 
 const navItems = [
@@ -30,17 +31,22 @@ const navItems = [
   { href: "/contact", label: { en: "Contact", ur: "رابطہ" } },
 ];
 
+function getDisplayName(settingsCompanyName: string | undefined, fallback: { en: string; ur: string }) {
+  return settingsCompanyName ?? fallback.en;
+}
+
 function BrandMark({ inverted = false }: { inverted?: boolean }) {
-  const { text } = usePublicLocale();
+  const { settings } = useSiteSettings();
+  const displayName = getDisplayName(settings?.companyName, company.name);
 
   return (
-    <Link href="/" className="flex items-center gap-3" aria-label={text(company.name)}>
+    <Link href="/" className="flex items-center gap-3" aria-label={displayName}>
       <span className="grid h-11 w-11 place-items-center rounded-md bg-primary text-primary-foreground shadow-sm">
         <Zap className="h-6 w-6" aria-hidden="true" />
       </span>
       <span className="leading-tight">
         <span className="block text-sm font-black uppercase tracking-[0.18em] text-primary">GEW</span>
-        <span className={cn("block text-sm font-semibold", inverted ? "text-white" : "text-foreground")}>{text(company.name)}</span>
+        <span className={cn("block text-sm font-semibold", inverted ? "text-white" : "text-foreground")}>{displayName}</span>
       </span>
     </Link>
   );
@@ -49,7 +55,12 @@ function BrandMark({ inverted = false }: { inverted?: boolean }) {
 export function Navbar() {
   const pathname = usePathname();
   const { locale, setLocale, theme, setTheme, text } = usePublicLocale();
+  const { settings } = useSiteSettings();
   const [open, setOpen] = useState(false);
+
+  const phone = settings?.phone ?? company.phone;
+  const email = settings?.email ?? company.email;
+  const address = settings?.address ?? company.address.en;
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/88 backdrop-blur-xl">
@@ -58,16 +69,16 @@ export function Navbar() {
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
             <span className="inline-flex items-center gap-2">
               <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-              {company.phone}
+              {phone}
             </span>
             <span className="inline-flex items-center gap-2">
               <Mail className="h-3.5 w-3.5" aria-hidden="true" />
-              {company.email}
+              {email}
             </span>
           </div>
           <span className="inline-flex items-center gap-2">
             <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-            {text(company.address)}
+            {address}
           </span>
         </div>
       </div>
@@ -151,8 +162,17 @@ export function Navbar() {
 }
 
 export function Footer() {
-  const { text, locale } = usePublicLocale();
+  const { locale, text } = usePublicLocale();
+  const { settings } = useSiteSettings();
   const quickLinks = navItems.slice(1);
+
+  const phone = settings?.phone ?? company.phone;
+  const whatsapp = settings?.whatsappNumber ?? company.whatsapp;
+  const email = settings?.email ?? company.email;
+  const address = settings?.address ?? company.address.en;
+  const mapSrc =
+    settings?.mapEmbedUrl ??
+    "https://www.google.com/maps?q=New%20Bilal%20Ganj%20Market%2C%20Sheikhupura%20Road%2C%20Gujranwala%2C%20Pakistan&output=embed";
 
   return (
     <footer className="border-t bg-[#07111f] text-white">
@@ -187,15 +207,15 @@ export function Footer() {
         <div>
           <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-400">{locale === "en" ? "Contact" : "رابطہ"}</h2>
           <div className="mt-5 grid gap-3 text-sm text-slate-300">
-            <span>{company.phone}</span>
-            <span>{company.whatsapp}</span>
-            <span>{company.email}</span>
-            <span>New Bilal Ganj Market, Sheikhupura Road, Gujranwala, Punjab, Pakistan</span>
+            <span>{phone}</span>
+            <span>{whatsapp}</span>
+            <span>{email}</span>
+            <span>{address}</span>
           </div>
           <div className="mt-5 overflow-hidden rounded-md border border-white/10">
             <iframe
               title="Gujranwala Electric Wires map preview"
-              src="https://www.google.com/maps?q=New%20Bilal%20Ganj%20Market%2C%20Sheikhupura%20Road%2C%20Gujranwala%2C%20Pakistan&output=embed"
+              src={mapSrc}
               className="h-32 w-full"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
@@ -205,7 +225,7 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between lg:px-8">
-          <span>Copyright 2026 {text(company.name)}. All rights reserved.</span>
+          <span>Copyright 2026 {getDisplayName(settings?.companyName, company.name)}. All rights reserved.</span>
           <span className="flex gap-4">
             <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <Link href="/terms-and-conditions" className="hover:text-white">Terms & Conditions</Link>

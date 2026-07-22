@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
-import { company } from "@/lib/public-data";
 import { usePublicLocale } from "@/components/public/localized";
+import { useSiteSettings } from "@/components/providers/site-settings-provider";
 
 export function CTABanner() {
   const { locale } = usePublicLocale();
+  const { settings } = useSiteSettings();
+  const phone = settings?.phone ?? "+92 310 232432";
 
   return (
     <section className="bg-primary py-14 text-primary-foreground">
@@ -18,9 +20,9 @@ export function CTABanner() {
           </h2>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <a href={`tel:${company.phone}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-primary shadow-sm">
+          <a href={`tel:${phone}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-primary shadow-sm">
             <Phone className="h-4 w-4" aria-hidden="true" />
-            {company.phone}
+            {phone}
           </a>
           <Link href="/contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 px-5 text-sm font-black text-white">
             {locale === "en" ? "Request a Quote" : "قیمت معلوم کریں"}

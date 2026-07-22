@@ -22,6 +22,7 @@ import {
   whyChoose,
 } from "@/lib/public-data";
 import type { ApiBlog, ApiBrand, ApiProduct } from "@/lib/public-api";
+import { useSiteSettings } from "@/components/providers/site-settings-provider";
 
 // ─── shape transforms ────────────────────────────────────────────────────────
 
@@ -82,7 +83,7 @@ function PageHero({
 // ─── Products page ────────────────────────────────────────────────────────────
 
 export function ProductsPage() {
-  const { text, locale } = usePublicLocale();
+  const { locale } = usePublicLocale();
   const [liveProducts, setLiveProducts] = useState<ApiProduct[] | null>(null);
   const [liveCategories, setLiveCategories] = useState<{ id: string; name: string }[] | null>(null);
 
@@ -525,6 +526,11 @@ export function FAQsPage() {
 
 export function ContactPage() {
   const { locale } = usePublicLocale();
+  const { settings } = useSiteSettings();
+
+  const phone = settings?.phone ?? company.phone;
+  const email = settings?.email ?? company.email;
+  const address = settings?.address ?? company.address.en;
 
   return (
     <PublicShell>
@@ -539,15 +545,15 @@ export function ContactPage() {
             <div className="mt-6 grid gap-4 text-sm text-muted-foreground">
               <span className="flex gap-3">
                 <Phone className="h-5 w-5 text-primary" aria-hidden="true" />
-                {company.phone}
+                {phone}
               </span>
               <span className="flex gap-3">
                 <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
-                {company.email}
+                {email}
               </span>
               <span className="flex gap-3">
                 <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-                New Bilal Ganj Market, Sheikhupura Road, Gujranwala, Punjab, Pakistan
+                {address}
               </span>
             </div>
           </div>

@@ -9,19 +9,7 @@ import { company } from "@/lib/public-data";
 import type { ApiFaq } from "@/lib/public-api";
 import { cn } from "@/lib/utils";
 import { usePublicLocale } from "@/components/public/localized";
-
-// Social links
-const SOCIAL_LINKS = {
-  instagram: "https://www.instagram.com/gujranwalaelectric?igsh=NWd2NTJrMHV1eGRq&utm_source=qr",
-  facebook: "https://www.facebook.com/profile.php?id=61591522142534&mibextid=wwXIfr&mibextid=wwXIfr",
-  tiktok: "https://www.tiktok.com/@gujranwala.electri?_r=1&_t=ZS-97ppTG8DAvp",
-  youtube: "https://youtube.com/@gecgujranwalaelectriccables?si=_pUb3pXCbn2l63V1",
-};
-
-// Correct address
-const BUSINESS_ADDRESS = "New Bilal Ganj Market, Sheikhupura Road, Gujranwala";
-const MAP_EMBED_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3401.4!2d74.1883!3d32.1617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391f2b7a8c3e0001%3A0x1234567890abcdef!2sNew%20Bilal%20Ganj%20Market%2C%20Sheikhupura%20Rd%2C%20Gujranwala!5e0!3m2!1sen!2spk!4v1700000000000";
+import { useSiteSettings } from "@/components/providers/site-settings-provider";
 
 // TikTok SVG icon (lucide-react doesn't include it)
 function TikTokIcon({ className }: { className?: string }) {
@@ -56,8 +44,25 @@ function YoutubeIcon({ className }: { className?: string }) {
   );
 }
 
+const HARDCODED_SOCIAL_LINKS = {
+  facebook: "https://www.facebook.com/profile.php?id=61591522142534&mibextid=wwXIfr&mibextid=wwXIfr",
+  instagram: "https://www.instagram.com/gujranwalaelectric?igsh=NWd2NTJrMHV1eGRq&utm_source=qr",
+  tiktok: "https://www.tiktok.com/@gujranwala.electri?_r=1&_t=ZS-97ppTG8DAvp",
+  youtube: "https://youtube.com/@gecgujranwalaelectriccables?si=_pUb3pXCbn2l63V1",
+};
+
+// TODO: tiktokUrl not in SiteSettings schema yet; keep hardcoded fallback until schema is updated.
+
+function getSocialLinks(settings: { facebookUrl?: string | null; instagramUrl?: string | null; youtubeUrl?: string | null } | null) {
+  return {
+    facebook: settings?.facebookUrl ?? HARDCODED_SOCIAL_LINKS.facebook,
+    instagram: settings?.instagramUrl ?? HARDCODED_SOCIAL_LINKS.instagram,
+    youtube: settings?.youtubeUrl ?? HARDCODED_SOCIAL_LINKS.youtube,
+    tiktok: HARDCODED_SOCIAL_LINKS.tiktok,
+  };
+}
+
 export function FAQAccordion({ limit }: { limit?: number }) {
-  const { text } = usePublicLocale();
   const [open, setOpen] = useState(0);
   const [faqs, setFaqs] = useState<ApiFaq[]>([]);
 
@@ -211,10 +216,13 @@ export function ReviewSubmissionForm() {
 }
 
 export function SocialLinks() {
+  const { settings } = useSiteSettings();
+  const links = getSocialLinks(settings);
+
   return (
     <div className="flex items-center gap-2">
       <a
-        href={SOCIAL_LINKS.facebook}
+        href={links.facebook}
         target="_blank"
         rel="noopener noreferrer"
         className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white"
@@ -223,7 +231,7 @@ export function SocialLinks() {
         <FacebookIcon className="h-4 w-4" />
       </a>
       <a
-        href={SOCIAL_LINKS.instagram}
+        href={links.instagram}
         target="_blank"
         rel="noopener noreferrer"
         className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white"
@@ -232,7 +240,7 @@ export function SocialLinks() {
         <InstagramIcon className="h-4 w-4" />
       </a>
       <a
-        href={SOCIAL_LINKS.tiktok}
+        href={links.tiktok}
         target="_blank"
         rel="noopener noreferrer"
         className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white"
@@ -241,7 +249,7 @@ export function SocialLinks() {
         <TikTokIcon className="h-4 w-4" />
       </a>
       <a
-        href={SOCIAL_LINKS.youtube}
+        href={links.youtube}
         target="_blank"
         rel="noopener noreferrer"
         className="grid h-10 w-10 place-items-center rounded-md border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white"
@@ -255,6 +263,15 @@ export function SocialLinks() {
 
 export function GoogleMapSection() {
   const { locale } = usePublicLocale();
+  const { settings } = useSiteSettings();
+
+  const address = settings?.address ?? "New Bilal Ganj Market, Sheikhupura Road, Gujranwala";
+  const phone = settings?.phone ?? company.phone;
+  const email = settings?.email ?? company.email;
+  const mapSrc =
+    settings?.mapEmbedUrl ??
+    `https://www.google.com/maps?q=${encodeURIComponent(address + ", Punjab, Pakistan")}&output=embed`;
+  const links = getSocialLinks(settings);
 
   return (
     <section className="bg-muted/45 py-16">
@@ -266,17 +283,17 @@ export function GoogleMapSection() {
             <span className="flex items-start gap-3">
               <MapPin className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
               <span>
-                <strong className="block font-semibold text-foreground">{BUSINESS_ADDRESS}</strong>
+                <strong className="block font-semibold text-foreground">{address}</strong>
                 {locale === "en" ? "Punjab, Pakistan" : "پنجاب، پاکستان"}
               </span>
             </span>
             <span className="flex items-start gap-3">
               <Phone className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-              {company.phone}
+              {phone}
             </span>
             <span className="flex items-start gap-3">
               <Mail className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-              {company.email}
+              {email}
             </span>
           </div>
           <div className="mt-6">
@@ -284,16 +301,16 @@ export function GoogleMapSection() {
               {locale === "en" ? "Follow us" : "ہمیں فالو کریں"}
             </p>
             <div className="flex gap-2">
-              <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="Facebook">
+              <a href={links.facebook} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="Facebook">
                 <FacebookIcon className="h-4 w-4" />
               </a>
-              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="Instagram">
+              <a href={links.instagram} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="Instagram">
                 <InstagramIcon className="h-4 w-4" />
               </a>
-              <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="TikTok">
+              <a href={links.tiktok} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="TikTok">
                 <TikTokIcon className="h-4 w-4" />
               </a>
-              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="YouTube">
+              <a href={links.youtube} target="_blank" rel="noopener noreferrer" className="grid h-9 w-9 place-items-center rounded-md border bg-card transition hover:bg-accent" aria-label="YouTube">
                 <YoutubeIcon className="h-4 w-4" />
               </a>
             </div>
@@ -302,7 +319,7 @@ export function GoogleMapSection() {
         <div className="min-h-80 overflow-hidden rounded-lg border bg-card shadow-sm">
           <iframe
             title="New Bilal Ganj Market, Sheikhupura Road, Gujranwala"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(BUSINESS_ADDRESS + ", Punjab, Pakistan")}&output=embed`}
+            src={mapSrc}
             className="h-full min-h-80 w-full"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

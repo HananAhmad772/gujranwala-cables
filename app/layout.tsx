@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { AppProviders } from "@/components/providers/app-providers";
+import { SiteSettingsProvider } from "@/components/providers/site-settings-provider";
+import { fetchSiteSettings } from "@/services/site-settings.service";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,15 +18,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let settings = null;
+
+  try {
+    settings = await fetchSiteSettings();
+  } catch {
+    // If the database is unavailable or settings do not exist yet,
+    // fall back to hardcoded defaults in the client components.
+  }
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <AppProviders>{children}</AppProviders>
+        <SiteSettingsProvider initialSettings={settings}>
+          <AppProviders>{children}</AppProviders>
+        </SiteSettingsProvider>
       </body>
     </html>
   );
