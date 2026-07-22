@@ -11,6 +11,7 @@ import { ContactForm, FAQAccordion, GoogleMapSection } from "@/components/public
 import { usePublicLocale } from "@/components/public/localized";
 import { PublicShell } from "@/components/public/public-shell";
 import { SectionHeading } from "@/components/public/section-heading";
+import { WhatsAppButton } from "@/components/public/whatsapp-button";
 import { Breadcrumb, Pagination, SearchBar } from "@/components/public/utility";
 import {
   blogPosts as staticBlogPosts,
@@ -136,7 +137,9 @@ export function ProductsPage() {
 // ─── Product details page ─────────────────────────────────────────────────────
 
 export function ProductDetailsPage({ slug }: { slug: string }) {
-  const { text, locale } = usePublicLocale();  const [liveProduct, setLiveProduct] = useState<ApiProduct | null | undefined>(undefined);
+  const { text, locale } = usePublicLocale();
+  const { settings } = useSiteSettings();
+  const [liveProduct, setLiveProduct] = useState<ApiProduct | null | undefined>(undefined);
 
   useEffect(() => {
     fetch(`/api/products?slug=${slug}`)
@@ -208,9 +211,18 @@ export function ProductDetailsPage({ slug }: { slug: string }) {
                   </div>
                 ))}
               </div>
-              <Link href="/contact" className="mt-8 inline-flex h-12 items-center justify-center rounded-md bg-secondary px-5 text-sm font-black text-secondary-foreground">
-                {locale === "en" ? "Request Quote" : "قیمت معلوم کریں"}
-              </Link>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <WhatsAppButton
+                  phoneNumber={settings?.whatsappNumber ?? company.whatsapp}
+                  variant="inline"
+                  message={`Hi, I'm interested in ${text(product.name)}`}
+                >
+                  {locale === "en" ? "Order via WhatsApp" : "واٹس ایپ پر آرڈر کریں"}
+                </WhatsAppButton>
+                <Link href="/contact" className="inline-flex h-12 items-center justify-center rounded-md bg-secondary px-5 text-sm font-black text-secondary-foreground">
+                  {locale === "en" ? "Request Quote" : "قیمت معلوم کریں"}
+                </Link>
+              </div>
             </div>
           </div>
           {(features.length > 0 || applications.length > 0) && (
@@ -531,6 +543,7 @@ export function ContactPage() {
   const phone = settings?.phone ?? company.phone;
   const email = settings?.email ?? company.email;
   const address = settings?.address ?? company.address.en;
+  const whatsapp = settings?.whatsappNumber ?? company.whatsapp;
 
   return (
     <PublicShell>
@@ -550,6 +563,11 @@ export function ContactPage() {
               <span className="flex gap-3">
                 <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
                 {email}
+              </span>
+              <span className="flex gap-3">
+                <WhatsAppButton phoneNumber={whatsapp} variant="inline" message="Hi, I'm interested in your electric cables">
+                  {locale === "en" ? "Chat on WhatsApp" : "واٹس ایپ پر چیٹ کریں"}
+                </WhatsAppButton>
               </span>
               <span className="flex gap-3">
                 <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />

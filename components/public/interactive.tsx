@@ -10,6 +10,7 @@ import type { ApiFaq } from "@/lib/public-api";
 import { cn } from "@/lib/utils";
 import { usePublicLocale } from "@/components/public/localized";
 import { useSiteSettings } from "@/components/providers/site-settings-provider";
+import { WhatsAppButton } from "@/components/public/whatsapp-button";
 
 // TikTok SVG icon (lucide-react doesn't include it)
 function TikTokIcon({ className }: { className?: string }) {
@@ -290,6 +291,9 @@ export function GoogleMapSection() {
             <span className="flex items-start gap-3">
               <Phone className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
               {phone}
+            </span>
+            <span className="flex items-start gap-3">
+              <WhatsAppButton phoneNumber={settings?.whatsappNumber ?? company.whatsapp} variant="inline" message="Hi, I'm interested in your electric cables" className="text-slate-300 hover:text-white" />
             </span>
             <span className="flex items-start gap-3">
               <Mail className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />

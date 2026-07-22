@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { usePublicLocale } from "@/components/public/localized";
 import { useSiteSettings } from "@/components/providers/site-settings-provider";
 import { SocialLinks } from "@/components/public/interactive";
+import { WhatsAppButton } from "@/components/public/whatsapp-button";
 
 const navItems = [
   { href: "/", label: { en: "Home", ur: "ہوم" } },
@@ -208,7 +209,7 @@ export function Footer() {
           <h2 className="text-sm font-bold uppercase tracking-[0.18em] text-slate-400">{locale === "en" ? "Contact" : "رابطہ"}</h2>
           <div className="mt-5 grid gap-3 text-sm text-slate-300">
             <span>{phone}</span>
-            <span>{whatsapp}</span>
+            <WhatsAppButton phoneNumber={whatsapp} variant="inline" className="text-slate-300 hover:text-white" />
             <span>{email}</span>
             <span>{address}</span>
           </div>
@@ -237,11 +238,18 @@ export function Footer() {
 }
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
+  const { settings } = useSiteSettings();
+
   return (
     <>
       <Navbar />
       <main>{children}</main>
       <Footer />
+      <WhatsAppButton
+        phoneNumber={settings?.whatsappNumber ?? company.whatsapp}
+        variant="floating"
+        message="Hi, I'm interested in your electric cables"
+      />
     </>
   );
 }

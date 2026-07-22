@@ -4,11 +4,13 @@ import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
 import { usePublicLocale } from "@/components/public/localized";
 import { useSiteSettings } from "@/components/providers/site-settings-provider";
+import { WhatsAppButton } from "@/components/public/whatsapp-button";
 
 export function CTABanner() {
   const { locale } = usePublicLocale();
   const { settings } = useSiteSettings();
   const phone = settings?.phone ?? "+92 310 232432";
+  const whatsapp = settings?.whatsappNumber ?? "+92 311 0472352";
 
   return (
     <section className="bg-primary py-14 text-primary-foreground">
@@ -20,12 +22,15 @@ export function CTABanner() {
           </h2>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
+          <WhatsAppButton phoneNumber={whatsapp} variant="inline" message="Hi, I'm interested in your electric cables">
+            {locale === "en" ? "Chat on WhatsApp" : "واٹس ایپ پر چیٹ کریں"}
+          </WhatsAppButton>
           <a href={`tel:${phone}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-primary shadow-sm">
             <Phone className="h-4 w-4" aria-hidden="true" />
             {phone}
           </a>
           <Link href="/contact" className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/25 px-5 text-sm font-black text-white">
-            {locale === "en" ? "Request a Quote" : "قیمت معلوم کریں"}
+            {locale === "en" ? "Request Quote" : "قیمت معلوم کریں"}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
           </Link>
         </div>
