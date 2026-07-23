@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const createFaqSchema = z.object({
-  question: z.string().trim().nonempty("Question is required"),
-  answer: z.string().trim().nonempty("Answer is required"),
+  question: z.string().trim().min(1, "Question is required"),
+  answer: z.string().trim().min(1, "Answer is required"),
   sortOrder: z.number().int().min(0, "Sort order must be greater than or equal to 0").optional(),
 });
 

@@ -11,14 +11,18 @@ import { UnauthorizedError } from "@/lib/errors";
 import type { AdminJwtPayload, LoginRequest, ChangePasswordRequest } from "@/types/auth";
 
 export async function loginAdmin({ email, password }: LoginRequest) {
+  console.time("[login] db query (findAdminByEmail)");
   const admin = await findAdminByEmail(email);
+  console.timeEnd("[login] db query (findAdminByEmail)");
 
   if (!admin) {
     logInfo("Login Failed", { email, reason: "Admin not found" });
     throw new UnauthorizedError("Invalid credentials");
   }
 
+  console.time("[login] bcrypt compare");
   const isPasswordValid = await comparePassword(password, admin.passwordHash);
+  console.timeEnd("[login] bcrypt compare");
 
   if (!isPasswordValid) {
     logInfo("Login Failed", { email, reason: "Invalid password" });

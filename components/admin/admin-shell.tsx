@@ -14,9 +14,16 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(!authRoutes.includes(pathname));
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     if (authRoutes.includes(pathname)) {
+      setCheckingAuth(false);
+      return;
+    }
+
+    // If already authenticated in this session, skip the check
+    if (authChecked) {
       setCheckingAuth(false);
       return;
     }
@@ -29,6 +36,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         await adminApi<{ admin: { id: string } }>('/api/auth/me');
         if (mounted) {
           setCheckingAuth(false);
+          setAuthChecked(true);
         }
       } catch {
         if (mounted) {
@@ -42,7 +50,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, [pathname, router]);
+  }, [pathname, router, authChecked]);
 
   if (authRoutes.includes(pathname)) {
     return <>{children}</>;
@@ -51,7 +59,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   if (checkingAuth) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="rounded-lg border bg-card px-6 py-4 text-sm text-muted-foreground shadow-sm">Checking your admin session…</div>
+        <div className="flex items-center gap-3 rounded-lg border bg-card px-6 py-4 shadow-sm">
+          <svg className="h-5 w-5 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span className="text-sm text-muted-foreground">Loading...</span>
+        </div>
       </div>
     );
   }

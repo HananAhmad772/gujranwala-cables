@@ -3,8 +3,8 @@ import { z } from "zod";
 const optionalText = z.string().trim().optional().nullable();
 
 export const createBrandSchema = z.object({
-  name: z.string().trim().nonempty("Name is required"),
-  slug: z.string().trim().nonempty("Slug is required"),
+  name: z.string().trim().min(1, "Name is required"),
+  slug: z.string().trim().min(1, "Slug is required"),
   logoUrl: optionalText,
   description: optionalText,
   isActive: z.boolean().optional(),

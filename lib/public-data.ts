@@ -48,8 +48,8 @@ export const company = {
   whatsapp: "+92 311 0472352",
   email: "admin@gujranwalaelectric.com",
   address: {
-    en: "Industrial Estate, Gujranwala, Punjab, Pakistan",
-    ur: "انڈسٹریل اسٹیٹ، گوجرانوالہ، پنجاب، پاکستان",
+    en: "Shop No 50, New Bilal Ganj Market, Sheikhupura Road, Gujranwala, Punjab, Pakistan",
+    ur: "دکان نمبر 50، نیو بلال گنج مارکیٹ، شیخوپورہ روڈ، گوجرانوالہ، پنجاب، پاکستان",
   },
 };
 

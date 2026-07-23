@@ -98,7 +98,7 @@ export async function middleware(request: NextRequest) {
         
       if (!isExempt && !payload) {
         return new NextResponse(
-          JSON.stringify({ success: false, message: "Unauthorized" }),
+          JSON.stringify({ success: false, message: "Unauthorized", code: 401, data: null }),
           { status: 401, headers: { "Content-Type": "application/json" } }
         );
       }

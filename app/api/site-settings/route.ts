@@ -1,29 +1,20 @@
 import { ZodError } from "zod";
 import { requireAuth } from "@/middlewares/auth.middleware";
-import { apiError, serverError, success, validation } from "@/lib/response";
-import { formatZodErrors, validateBody } from "@/lib/validations";
+import { successResponse, errorResponse, parseRequestBody } from "@/lib/response";
+import { formatFirstZodError, validateBody } from "@/lib/validations";
 import { ApiError } from "@/lib/errors";
 import { fetchSiteSettings, saveSiteSettings } from "@/services/site-settings.service";
 import { siteSettingsSchema } from "@/validators/site-settings";
 
-async function readJson(request: Request) {
-  try {
-    return await request.json();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Invalid JSON payload";
-    throw new ApiError("Invalid JSON payload", 400, { _error: [message] });
-  }
-}
-
 export async function GET(request: Request) {
   try {
     const settings = await fetchSiteSettings();
-    return success("Site settings fetched successfully", { settings });
+    return successResponse({ settings }, "Site settings fetched successfully");
   } catch (error) {
     if (error instanceof ApiError) {
-      return apiError(error);
+      return errorResponse(error.message, error.statusCode);
     }
-    return serverError("Internal Server Error");
+    return errorResponse("Internal Server Error", 500);
   }
 }
 
@@ -34,18 +25,19 @@ export async function POST(request: Request) {
       return authResult;
     }
 
-    const body = await readJson(request);
+    const body = await parseRequestBody(request);
     const payload = validateBody(siteSettingsSchema, body);
     const settings = await saveSiteSettings(payload);
 
-    return success("Site settings saved successfully", { settings });
+    return successResponse({ settings }, "Site settings saved successfully");
   } catch (error) {
     if (error instanceof ZodError) {
-      return validation("Validation failed", formatZodErrors(error));
+      return errorResponse(formatFirstZodError(error), 400);
     }
     if (error instanceof ApiError) {
-      return apiError(error);
+      return errorResponse(error.message, error.statusCode);
     }
-    return serverError("Internal Server Error");
+    return errorResponse("Internal Server Error", 500);
   }
 }
+

@@ -1,5 +1,5 @@
 import { requireAuth } from "@/middlewares/auth.middleware";
-import { apiError, serverError, success } from "@/lib/response";
+import { successResponse, errorResponse } from "@/lib/response";
 import { ApiError } from "@/lib/errors";
 import { closeContact } from "@/services/contact.service";
 
@@ -18,12 +18,13 @@ export async function PATCH(request: Request, { params }: ContactRouteContext) {
     const { id } = await params;
     const contact = await closeContact(id);
 
-    return success("Contact submission closed successfully", { contact });
+    return successResponse({ contact }, "Contact submission closed successfully");
   } catch (error) {
     if (error instanceof ApiError) {
-      return apiError(error);
+      return errorResponse(error.message, error.statusCode);
     }
 
-    return serverError("Internal Server Error");
+    return errorResponse("Internal Server Error", 500);
   }
 }
+

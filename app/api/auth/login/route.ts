@@ -1,37 +1,33 @@
-import { validateBody, formatZodErrors } from "@/lib/validations";
+import { validateBody, formatFirstZodError } from "@/lib/validations";
 import { loginSchema } from "@/validators/auth";
 import { loginAdmin } from "@/services/auth.service";
 import { attachAuthCookie } from "@/lib/cookies";
-import { success, validation, serverError, apiError } from "@/lib/response";
+import { successResponse, errorResponse, parseRequestBody } from "@/lib/response";
 import { ZodError } from "zod";
 import { ApiError } from "@/lib/errors";
 
 export async function POST(request: Request) {
+  console.time("[login] total route execution");
   try {
-    let body: unknown;
-
-    try {
-      body = await request.json();
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Invalid JSON payload";
-      return validation("Invalid JSON payload", { _error: [message] });
-    }
-
+    const body = await parseRequestBody(request);
     const payload = validateBody(loginSchema, body);
     const result = await loginAdmin(payload);
-    const response = success("Login successful", { admin: result.admin, token: result.token });
+    const response = successResponse({ admin: result.admin, token: result.token }, "Login successful");
     attachAuthCookie(response, result.token);
+    console.timeEnd("[login] total route execution");
     return response;
   } catch (error) {
+    console.timeEnd("[login] total route execution");
     if (error instanceof ZodError) {
-      return validation("Validation failed", formatZodErrors(error));
+      return errorResponse(formatFirstZodError(error), 400);
     }
 
     if (error instanceof ApiError) {
-      return apiError(error);
+      return errorResponse(error.message, error.statusCode);
     }
 
     const message = error instanceof Error ? error.message : "Internal Server Error";
-    return serverError(message);
+    return errorResponse(message, 500);
   }
 }
+

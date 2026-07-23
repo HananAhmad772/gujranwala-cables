@@ -3,7 +3,7 @@ import { z } from "zod";
 const optionalText = z.string().trim().optional().nullable();
 
 export const siteSettingsSchema = z.object({
-  companyName: z.string().trim().nonempty("Company Name is required"),
+  companyName: z.string().trim().min(1, "Company Name is required"),
   address: optionalText,
   phone: optionalText,
   whatsappNumber: optionalText,
@@ -12,5 +12,6 @@ export const siteSettingsSchema = z.object({
   instagramUrl: optionalText,
   linkedinUrl: optionalText,
   youtubeUrl: optionalText,
+  tiktokUrl: optionalText,
   mapEmbedUrl: optionalText,
 });

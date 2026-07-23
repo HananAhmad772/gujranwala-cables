@@ -1,5 +1,5 @@
 import { requireAuth } from "@/middlewares/auth.middleware";
-import { apiError, serverError, success } from "@/lib/response";
+import { successResponse, errorResponse } from "@/lib/response";
 import { ApiError } from "@/lib/errors";
 import { rejectReview } from "@/services/review.service";
 
@@ -18,12 +18,13 @@ export async function PATCH(request: Request, { params }: ReviewRouteContext) {
     const { id } = await params;
     const review = await rejectReview(id);
 
-    return success("Review rejected successfully", { review });
+    return successResponse({ review }, "Review rejected successfully");
   } catch (error) {
     if (error instanceof ApiError) {
-      return apiError(error);
+      return errorResponse(error.message, error.statusCode);
     }
 
-    return serverError("Internal Server Error");
+    return errorResponse("Internal Server Error", 500);
   }
 }
+

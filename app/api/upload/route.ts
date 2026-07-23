@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { put } from "@vercel/blob";
 import { requireAuth } from "@/middlewares/auth.middleware";
+import { successResponse, errorResponse } from "@/lib/response";
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -27,42 +28,27 @@ export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get("content-type") ?? "";
     if (!contentType.includes("multipart/form-data")) {
-      return NextResponse.json(
-        { success: false, message: "Request must be multipart/form-data" },
-        { status: 400 },
-      );
+      return errorResponse("Request must be multipart/form-data", 400);
     }
 
     const formData = await request.formData();
     const file = formData.get("file");
 
     if (!file || !(file instanceof File)) {
-      return NextResponse.json(
-        { success: false, message: "No file provided. Include a 'file' field." },
-        { status: 400 },
-      );
+      return errorResponse("No file provided. Include a 'file' field.", 400);
     }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json(
-        { success: false, message: `File type '${file.type}' is not allowed. Use JPEG, PNG, or WebP.` },
-        { status: 400 },
-      );
+      return errorResponse(`File type '${file.type}' is not allowed. Use JPEG, PNG, or WebP.`, 400);
     }
 
     if (file.size > MAX_SIZE_BYTES) {
-      return NextResponse.json(
-        { success: false, message: `File exceeds the 10 MB limit (received ${(file.size / 1024 / 1024).toFixed(2)} MB).` },
-        { status: 400 },
-      );
+      return errorResponse(`File exceeds the 10 MB limit (received ${(file.size / 1024 / 1024).toFixed(2)} MB).`, 400);
     }
 
     const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
     if (!blobToken) {
-      return NextResponse.json(
-        { success: false, message: "Blob storage is not configured on the server (BLOB_READ_WRITE_TOKEN missing)." },
-        { status: 500 },
-      );
+      return errorResponse("Blob storage is not configured on the server (BLOB_READ_WRITE_TOKEN missing).", 500);
     }
 
     const pathname = generateBlobPathname(file.name);
@@ -74,16 +60,11 @@ export async function POST(request: NextRequest) {
       access: "public",
     });
 
-    return NextResponse.json(
-      { success: true, message: "File uploaded successfully", data: { url: blob.url, filename: pathname } },
-      { status: 201 },
-    );
+    return successResponse({ url: blob.url, filename: pathname }, "File uploaded successfully", 201);
   } catch (error) {
     console.error("[upload] error:", error);
     const message = error instanceof Error ? error.message : "Upload failed due to a server error.";
-    return NextResponse.json(
-      { success: false, message },
-      { status: 500 },
-    );
+    return errorResponse(message, 500);
   }
 }
+

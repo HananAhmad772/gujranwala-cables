@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePreferences } from "@/contexts/preferences-context";
 import { adminApi } from "@/services/admin-api";
 import { ImageUpload } from "@/components/admin/image-upload";
+import { useToast } from "@/components/ui/toast";
 
 type ContactStatus = "New" | "Contacted" | "Closed";
 type ReviewStatus = "Pending" | "Approved" | "Rejected";
@@ -413,6 +414,7 @@ export function ContactMessagesWorkspace() {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const loadContacts = async () => {
     setLoading(true);
@@ -421,6 +423,7 @@ export function ContactMessagesWorkspace() {
       setRows(data.contacts.map(formatContactRow));
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Failed to load inquiries", description: "Could not fetch contact messages." });
     } finally {
       setLoading(false);
     }
@@ -456,6 +459,7 @@ export function ContactMessagesWorkspace() {
           }
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatContactRow(result.contact) : row)));
+        toast({ variant: "success", title: "Inquiry updated", description: "Contact status has been saved." });
       } else {
         const result = await adminApi<{ contact: any }>("/api/contacts", {
           method: "POST",
@@ -467,11 +471,13 @@ export function ContactMessagesWorkspace() {
           }
         });
         setRows((current) => [formatContactRow(result.contact), ...current]);
+        toast({ variant: "success", title: "Inquiry created", description: "New contact message has been added." });
       }
       setFormOpen(false);
       setEditingId(null);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the inquiry. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -499,8 +505,10 @@ export function ContactMessagesWorkspace() {
       await adminApi(`/api/contacts/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Inquiry deleted", description: "The contact message has been removed." });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the inquiry. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -516,7 +524,7 @@ export function ContactMessagesWorkspace() {
     {
       key: "status",
       header: "Status",
-      render: (row) => <StatusSelect value={row.status} options={["New", "Contacted", "Closed"]} onChange={(value) => void updateStatus(row, value)} />,
+      render: (row) => <StatusBadge status={row.status} />,
     },
     { key: "createdAt", header: "Created At", render: (row) => <span className="text-muted-foreground">{row.createdAt}</span> },
     {
@@ -625,6 +633,7 @@ export function FAQsWorkspace() {
   const [draft, setDraft] = useState<FAQRow>({ id: createEntityId("faq"), question: "", answer: "", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const loadFAQs = async () => {
     setLoading(true);
@@ -633,6 +642,7 @@ export function FAQsWorkspace() {
       setRows(data.faqs.map(formatFAQRow));
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Failed to load FAQs", description: "Could not fetch FAQ entries." });
     } finally {
       setLoading(false);
     }
@@ -671,17 +681,20 @@ export function FAQsWorkspace() {
           body: payload,
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatFAQRow(result.faq) : row)));
+        toast({ variant: "success", title: "FAQ updated", description: "The question and answer have been saved." });
       } else {
         const result = await adminApi<{ faq: any }>("/api/faqs", {
           method: "POST",
           body: payload,
         });
         setRows((current) => [formatFAQRow(result.faq), ...current]);
+        toast({ variant: "success", title: "FAQ created", description: "New FAQ has been added to the library." });
       }
       setFormOpen(false);
       setEditingId(null);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the FAQ. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -694,8 +707,10 @@ export function FAQsWorkspace() {
       await adminApi(`/api/faqs/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "FAQ deleted", description: "The FAQ has been removed from the library." });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the FAQ. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -753,6 +768,7 @@ export function ReviewsWorkspace() {
   const [draft, setDraft] = useState<ReviewRow>({ id: createEntityId("rev"), name: "", rating: 5, review: "", status: "Pending", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const visibleRows = useMemo(() => (status === "All" ? rows : rows.filter((row) => row.status === status)), [rows, status]);
 
   const fetchReviews = async () => {
@@ -817,6 +833,7 @@ export function ReviewsWorkspace() {
           },
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatReviewRow(result.review) : row)));
+        toast({ variant: "success", title: "Review updated", description: "The review details have been saved." });
       } else {
         const result = await adminApi<{ review: { id: string; name: string; rating: number; comment?: string | null; status?: string; createdAt?: string } }>('/api/reviews', {
           method: "POST",
@@ -827,10 +844,13 @@ export function ReviewsWorkspace() {
           },
         });
         setRows((current) => [formatReviewRow(result.review), ...current]);
+        toast({ variant: "success", title: "Review created", description: "New review has been added." });
       }
 
       setFormOpen(false);
       setEditingId(null);
+    } catch (err) {
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the review. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -844,6 +864,9 @@ export function ReviewsWorkspace() {
         body: { status: mapReviewStatusToApi(nextStatus) },
       });
       setRows((current) => current.map((item) => (item.id === row.id ? formatReviewRow(result.review) : item)));
+      toast({ variant: "success", title: `Review ${nextStatus.toLowerCase()}`, description: `The review has been marked as ${nextStatus.toLowerCase()}.` });
+    } catch (err) {
+      toast({ variant: "error", title: "Status update failed", description: `Could not mark the review as ${nextStatus.toLowerCase()}.` });
     } finally {
       setLoading(false);
     }
@@ -857,6 +880,9 @@ export function ReviewsWorkspace() {
       await adminApi(`/api/reviews/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Review deleted", description: "The review has been removed." });
+    } catch (err) {
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the review. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -883,14 +909,18 @@ export function ReviewsWorkspace() {
       header: "Actions",
       render: (row) => (
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" onClick={() => void updateStatus(row, "Approved")}>
-            <Check className="h-4 w-4" />
-            Approve
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => void updateStatus(row, "Rejected")}>
-            <X className="h-4 w-4" />
-            Reject
-          </Button>
+          {row.status === "Pending" && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => void updateStatus(row, "Approved")}>
+                <Check className="h-4 w-4" />
+                Approve
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => void updateStatus(row, "Rejected")}>
+                <X className="h-4 w-4" />
+                Reject
+              </Button>
+            </>
+          )}
           <RowActions onEdit={() => openEdit(row)} onDelete={() => setDeleteTarget(row)} />
         </div>
       ),
@@ -994,6 +1024,7 @@ export function BlogsWorkspace() {
   const [draft, setDraft] = useState<BlogRow>({ id: createEntityId("blog"), featuredImage: "", title: "", subtitle: "", content: "", readingTime: "", publishedDate: getToday(), status: "Draft" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const loadBlogs = async () => {
     setLoading(true);
@@ -1002,6 +1033,7 @@ export function BlogsWorkspace() {
       setRows(data.blogs.map(formatBlogRow));
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Failed to load blogs", description: "Could not fetch blog posts." });
     } finally {
       setLoading(false);
     }
@@ -1048,17 +1080,20 @@ export function BlogsWorkspace() {
         if (selected?.id === editingId) {
           setSelected(formatBlogRow(result.blog));
         }
+        toast({ variant: "success", title: "Blog updated", description: "The blog post has been saved." });
       } else {
         const result = await adminApi<{ blog: any }>("/api/blogs", {
           method: "POST",
           body: payload,
         });
         setRows((current) => [formatBlogRow(result.blog), ...current]);
+        toast({ variant: "success", title: "Blog created", description: "New blog post has been added." });
       }
       setFormOpen(false);
       setEditingId(null);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the blog post. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1072,8 +1107,10 @@ export function BlogsWorkspace() {
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       if (selected?.id === deleteTarget.id) setSelected(null);
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Blog deleted", description: "The blog post has been removed." });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the blog post. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1182,6 +1219,7 @@ export function CategoriesWorkspace() {
   const [draft, setDraft] = useState<CategoryRow>({ id: createEntityId("cat"), logo: "", title: "", description: "", status: "Active", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -1247,16 +1285,20 @@ export function CategoriesWorkspace() {
           body: payload,
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatCategoryRow(result.category) : row)));
+        toast({ variant: "success", title: "Category updated", description: "The category details have been saved." });
       } else {
         const result = await adminApi<{ category: { id: string; name: string; description?: string | null; isActive?: boolean; createdAt?: string } }>('/api/categories', {
           method: "POST",
           body: payload,
         });
         setRows((current) => [formatCategoryRow(result.category), ...current]);
+        toast({ variant: "success", title: "Category created", description: "New category has been added to the catalog." });
       }
 
       setFormOpen(false);
       setEditingId(null);
+    } catch (err) {
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the category. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1275,6 +1317,9 @@ export function CategoriesWorkspace() {
         },
       });
       setRows((current) => current.map((item) => (item.id === row.id ? formatCategoryRow(result.category) : item)));
+      toast({ variant: "success", title: "Category status updated", description: `"${row.title}" is now ${nextStatus.toLowerCase()}.` });
+    } catch (err) {
+      toast({ variant: "error", title: "Status update failed", description: "Could not update the category status." });
     } finally {
       setLoading(false);
     }
@@ -1288,6 +1333,9 @@ export function CategoriesWorkspace() {
       await adminApi(`/api/categories/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Category deleted", description: "The category has been removed from the catalog." });
+    } catch (err) {
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the category. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1389,6 +1437,7 @@ export function BrandsWorkspace() {
   const [draft, setDraft] = useState<BrandRow>({ id: createEntityId("brand"), logo: "", brandName: "", description: "", status: "Active", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const loadBrands = async () => {
     setLoading(true);
@@ -1397,6 +1446,7 @@ export function BrandsWorkspace() {
       setRows(data.brands.map(formatBrandRow));
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Failed to load brands", description: "Could not fetch brand records." });
     } finally {
       setLoading(false);
     }
@@ -1438,17 +1488,20 @@ export function BrandsWorkspace() {
           body: payload,
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatBrandRow(result.brand) : row)));
+        toast({ variant: "success", title: "Brand updated", description: "The brand details have been saved." });
       } else {
         const result = await adminApi<{ brand: any }>("/api/brands", {
           method: "POST",
           body: payload,
         });
         setRows((current) => [formatBrandRow(result.brand), ...current]);
+        toast({ variant: "success", title: "Brand created", description: "New brand has been added to the library." });
       }
       setFormOpen(false);
       setEditingId(null);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the brand. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1467,8 +1520,10 @@ export function BrandsWorkspace() {
         }
       });
       setRows((current) => current.map((item) => (item.id === row.id ? formatBrandRow(result.brand) : item)));
+      toast({ variant: "success", title: "Brand status updated", description: `"${row.brandName}" is now ${nextStatus.toLowerCase()}.` });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Status update failed", description: "Could not update the brand status." });
     } finally {
       setLoading(false);
     }
@@ -1481,8 +1536,10 @@ export function BrandsWorkspace() {
       await adminApi(`/api/brands/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Brand deleted", description: "The brand has been removed from the library." });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the brand. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1575,6 +1632,7 @@ export function ProductsWorkspace() {
   const [draft, setDraft] = useState<ProductRow>({ id: createEntityId("prod"), featuredImage: "", title: "", subtitle: "", description: "", category: "", brand: "", status: "Active", createdAt: getToday() });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -1591,6 +1649,7 @@ export function ProductsWorkspace() {
       setBrands(bData.brands);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Failed to load products", description: "Could not fetch the product catalog." });
     } finally {
       setLoading(false);
     }
@@ -1654,17 +1713,20 @@ export function ProductsWorkspace() {
           body: payload,
         });
         setRows((current) => current.map((row) => (row.id === editingId ? formatProductRow(result.product) : row)));
+        toast({ variant: "success", title: "Product updated", description: "The product details have been saved." });
       } else {
         const result = await adminApi<{ product: any }>("/api/products", {
           method: "POST",
           body: payload,
         });
         setRows((current) => [formatProductRow(result.product), ...current]);
+        toast({ variant: "success", title: "Product created", description: "New product has been added to the catalog." });
       }
       setFormOpen(false);
       setEditingId(null);
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: editingId ? "Update failed" : "Create failed", description: "Could not save the product. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -1688,8 +1750,10 @@ export function ProductsWorkspace() {
         }
       });
       setRows((current) => current.map((item) => (item.id === row.id ? formatProductRow(result.product) : item)));
+      toast({ variant: "success", title: "Product status updated", description: `"${row.title}" is now ${nextStatus.toLowerCase()}.` });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Status update failed", description: "Could not update the product status." });
     } finally {
       setLoading(false);
     }
@@ -1702,8 +1766,10 @@ export function ProductsWorkspace() {
       await adminApi(`/api/products/${deleteTarget.id}`, { method: "DELETE" });
       setRows((current) => current.filter((row) => row.id !== deleteTarget.id));
       setDeleteTarget(null);
+      toast({ variant: "success", title: "Product deleted", description: "The product has been removed from the catalog." });
     } catch (err) {
       console.error(err);
+      toast({ variant: "error", title: "Delete failed", description: "Could not delete the product. Please try again." });
     } finally {
       setLoading(false);
     }

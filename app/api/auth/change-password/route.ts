@@ -1,11 +1,12 @@
-import { validateBody, formatZodErrors } from "@/lib/validations";
+import { validateBody, formatFirstZodError } from "@/lib/validations";
 import { changePasswordSchema } from "@/validators/auth";
 import { requireAuth } from "@/middlewares/auth.middleware";
 import { getAuthTokenFromRequest } from "@/lib/cookies";
 import { changeAdminPassword } from "@/services/auth.service";
-import { success, validation, unauthorized, serverError } from "@/lib/response";
+import { successResponse, errorResponse, parseRequestBody } from "@/lib/response";
 import { verifyToken } from "@/lib/jwt";
 import { ZodError } from "zod";
+import { ApiError } from "@/lib/errors";
 
 export async function PATCH(request: Request) {
   try {
@@ -17,20 +18,26 @@ export async function PATCH(request: Request) {
 
     const token = getAuthTokenFromRequest(request);
     if (!token) {
-      return unauthorized();
+      return errorResponse("Unauthorized", 401);
     }
 
-    const body = await request.json();
+    const body = await parseRequestBody(request);
     const payload = validateBody(changePasswordSchema, body);
     const { adminId } = verifyToken(token);
 
     await changeAdminPassword(adminId, payload);
-    return success("Password changed successfully", {});
+    return successResponse({}, "Password changed successfully");
   } catch (error) {
     if (error instanceof ZodError) {
-      return validation("Validation failed", formatZodErrors(error));
+      return errorResponse(formatFirstZodError(error), 400);
     }
 
-    return serverError("Internal Server Error");
+    if (error instanceof ApiError) {
+      return errorResponse(error.message, error.statusCode);
+    }
+
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return errorResponse(message, 500);
   }
 }
+

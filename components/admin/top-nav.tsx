@@ -48,6 +48,21 @@ export function TopNav({ onMenuClick }: TopNavProps) {
     };
   }, []);
 
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    if (!profileOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-profile-menu]')) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [profileOpen]);
+
   async function handleLogout() {
     try {
       await adminApi('/api/auth/logout', { method: "POST" });
@@ -108,34 +123,45 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           <Bell className="h-4 w-4" />
         </Button>
 
-        <Button variant="ghost" className="h-10 gap-2 px-2" onClick={() => setProfileOpen(true)} aria-label={t.common.profile}>
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <UserRound className="h-4 w-4" />
-          </span>
-          <span className="hidden text-sm font-medium xl:inline">{adminName}</span>
-          <ChevronDown className="hidden h-4 w-4 text-muted-foreground xl:inline" />
-        </Button>
-      </div>
-
-      <Dialog open={profileOpen} onClose={() => setProfileOpen(false)} title={t.common.profile} description="Admin account and session options.">
-        <div className="space-y-2">
-          <Link className="block rounded-md px-3 py-2 text-sm hover:bg-muted" href="/admin/profile" onClick={() => setProfileOpen(false)}>
-            {t.nav.profile}
-          </Link>
-          <Link className="block rounded-md px-3 py-2 text-sm hover:bg-muted" href="/admin/profile" onClick={() => setProfileOpen(false)}>
-            {t.nav.changePassword}
-          </Link>
-          <button
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
-            onClick={() => {
-              setProfileOpen(false);
-              setLogoutOpen(true);
-            }}
+        <div className="relative" data-profile-menu>
+          <Button 
+            variant="ghost" 
+            className="h-10 gap-2 px-2" 
+            onClick={() => setProfileOpen(!profileOpen)} 
+            aria-label={t.common.profile}
+            aria-expanded={profileOpen}
           >
-            {t.nav.logout}
-          </button>
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <UserRound className="h-4 w-4" />
+            </span>
+            <span className="hidden text-sm font-medium xl:inline">{adminName}</span>
+            <ChevronDown className={`hidden h-4 w-4 text-muted-foreground transition-transform xl:inline ${profileOpen ? 'rotate-180' : ''}`} />
+          </Button>
+
+          {profileOpen && (
+            <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card shadow-lg">
+              <div className="space-y-1 p-2">
+                <Link 
+                  className="block rounded-md px-3 py-2 text-sm hover:bg-muted" 
+                  href="/admin/profile" 
+                  onClick={() => setProfileOpen(false)}
+                >
+                  {t.nav.profile}
+                </Link>
+                <button
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    setLogoutOpen(true);
+                  }}
+                >
+                  {t.nav.logout}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      </Dialog>
+      </div>
 
       <Dialog open={logoutOpen} onClose={() => setLogoutOpen(false)} title="Logout confirmation" description="End this admin session?">
         <div className="flex justify-end gap-2">

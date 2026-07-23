@@ -14,6 +14,7 @@ export type UpsertSiteSettingsInput = {
   instagramUrl?: string | null;
   linkedinUrl?: string | null;
   youtubeUrl?: string | null;
+  tiktokUrl?: string | null;
   mapEmbedUrl?: string | null;
 };
 

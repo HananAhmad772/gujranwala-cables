@@ -12,10 +12,10 @@ const publishedAtSchema = z
   .optional();
 
 export const createBlogSchema = z.object({
-  title: z.string().trim().nonempty("Title is required"),
-  slug: z.string().trim().nonempty("Slug is required"),
+  title: z.string().trim().min(1, "Title is required"),
+  slug: z.string().trim().min(1, "Slug is required"),
   excerpt: optionalText,
-  content: z.string().trim().nonempty("Content is required"),
+  content: z.string().trim().min(1, "Content is required"),
   featuredImage: optionalText,
   metaTitle: optionalText,
   metaDescription: optionalText,

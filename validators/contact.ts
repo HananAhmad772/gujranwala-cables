@@ -4,11 +4,11 @@ import { ContactStatus } from "@/app/generated/prisma/client";
 const optionalText = z.string().trim().optional().nullable();
 
 export const submitContactSchema = z.object({
-  name: z.string().trim().nonempty("Name is required"),
-  email: z.string().trim().nonempty("Email is required").email("Invalid email address"),
+  name: z.string().trim().min(1, "Name is required"),
+  email: z.string().trim().min(1, "Email is required").email("Invalid email address"),
   phone: optionalText,
   subject: optionalText,
-  message: z.string().trim().nonempty("Message is required"),
+  message: z.string().trim().min(1, "Message is required"),
 });
 
 export const contactListQuerySchema = z.object({

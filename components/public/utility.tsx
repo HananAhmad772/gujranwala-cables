@@ -20,7 +20,7 @@ export function Breadcrumb({ items }: { items: { label: string; href?: string }[
   );
 }
 
-export function SearchBar({ placeholder }: { placeholder?: string }) {
+export function SearchBar({ placeholder, value, onChange }: { placeholder?: string; value?: string; onChange?: (v: string) => void }) {
   const { locale } = usePublicLocale();
 
   return (
@@ -29,23 +29,55 @@ export function SearchBar({ placeholder }: { placeholder?: string }) {
       <input
         className="h-12 w-full rounded-md border bg-card ps-11 pe-4 text-sm shadow-sm outline-none transition focus:border-ring"
         placeholder={placeholder ?? (locale === "en" ? "Search products..." : "مصنوعات تلاش کریں...")}
+        value={value}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
       />
     </label>
   );
 }
 
-export function Pagination() {
+export function Pagination({ currentPage, totalPages, onPageChange }: { currentPage: number; totalPages: number; onPageChange: (page: number) => void }) {
+  if (totalPages <= 1) return null;
+
+  // Build a page window: always show first, last, current ±1, with ellipsis
+  const pages: (number | "…")[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "…") {
+      pages.push("…");
+    }
+  }
+
   return (
     <div className="mt-10 flex items-center justify-center gap-2">
-      <button className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground">
+      <button
+        className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground disabled:opacity-40"
+        disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+        aria-label="Previous page"
+      >
         <ChevronLeft className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
       </button>
-      {[1, 2, 3].map((page) => (
-        <button key={page} className={cn("h-10 min-w-10 rounded-md border px-3 text-sm font-bold", page === 1 ? "bg-primary text-primary-foreground" : "bg-card")}>
-          {page}
-        </button>
-      ))}
-      <button className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground">
+      {pages.map((page, idx) =>
+        page === "…" ? (
+          <span key={`ellipsis-${idx}`} className="h-10 min-w-10 rounded-md border px-3 text-sm font-bold bg-card grid place-items-center text-muted-foreground">…</span>
+        ) : (
+          <button
+            key={page}
+            className={cn("h-10 min-w-10 rounded-md border px-3 text-sm font-bold", page === currentPage ? "bg-primary text-primary-foreground" : "bg-card")}
+            onClick={() => onPageChange(page)}
+          >
+            {page}
+          </button>
+        )
+      )}
+      <button
+        className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground disabled:opacity-40"
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+        aria-label="Next page"
+      >
         <ChevronRight className="h-4 w-4 rtl:rotate-180" aria-hidden="true" />
       </button>
     </div>

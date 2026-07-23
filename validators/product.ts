@@ -23,16 +23,16 @@ const priceSchema = z
   .refine((value) => Number(value) >= 0, "Price must be greater than or equal to 0");
 
 export const productImageSchema = z.object({
-  imageUrl: z.string().trim().nonempty("Image URL is required"),
+  imageUrl: z.string().trim().min(1, "Image URL is required"),
   altText: optionalText,
   isPrimary: z.boolean().optional(),
   sortOrder: z.number().int().min(0, "Sort order must be greater than or equal to 0").optional(),
 });
 
 export const createProductSchema = z.object({
-  name: z.string().trim().nonempty("Name is required"),
-  slug: z.string().trim().nonempty("Slug is required"),
-  description: z.string().trim().nonempty("Description is required"),
+  name: z.string().trim().min(1, "Name is required"),
+  slug: z.string().trim().min(1, "Slug is required"),
+  description: z.string().trim().min(1, "Description is required"),
   size: optionalText,
   coreType: optionalText,
   application: optionalText,
@@ -45,8 +45,8 @@ export const createProductSchema = z.object({
   specs: jsonSchema
     .transform((value) => (value === null ? Prisma.JsonNull : (value as Prisma.InputJsonValue)))
     .optional(),
-  brandId: z.string().trim().nonempty("Brand is required"),
-  categoryId: z.string().trim().nonempty("Category is required"),
+  brandId: z.string().trim().min(1, "Brand is required"),
+  categoryId: z.string().trim().min(1, "Category is required"),
   images: z.array(productImageSchema).optional(),
 });
 

@@ -44,9 +44,9 @@ export default function SiteSettingsPage() {
     websiteTitle: "Premium Electric Wires & Cables",
     websiteDescription: "Manufacturing reliable electrical wires and cable solutions for homes, contractors, and industrial buyers.",
     primaryPhone: "+92 310 232432",
-    whatsappNumber: "+92 310 232432",
-    email: "info@gujranwalaelectricwires.com",
-    officeAddress: "Gujranwala, Punjab, Pakistan",
+    whatsappNumber: "+92 311 0472352",
+    email: "admin@gujranwalaelectricwires.com",
+    officeAddress: "Shop No 50, New Bilal Ganj Market, Sheikhupura Road, Gujranwala, Punjab, PakistanGujranwala, Punjab, Pakistan",
     googleMapsEmbedUrl: "",
     facebook: "",
     instagram: "",
@@ -153,6 +153,7 @@ export default function SiteSettingsPage() {
         instagramUrl: values.instagram || null,
         linkedinUrl: values.linkedIn || null,
         youtubeUrl: values.youTube || null,
+        tiktokUrl: values.tikTok || null,
         mapEmbedUrl: values.googleMapsEmbedUrl || null,
       };
 

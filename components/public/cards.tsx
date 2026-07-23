@@ -82,7 +82,7 @@ export function ReviewCard({ review }: { review: { name: { en: string; ur: strin
   const { text } = usePublicLocale();
 
   return (
-    <article className="rounded-lg border bg-card p-6 shadow-sm">
+    <article className="rounded-lg border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
       <div className="flex gap-1 text-secondary">
         {Array.from({ length: 5 }).map((_, index) => (
           <Star key={index} className="h-4 w-4 fill-current" aria-hidden="true" />

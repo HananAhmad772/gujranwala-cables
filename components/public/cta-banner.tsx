@@ -23,7 +23,7 @@ export function CTABanner() {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <WhatsAppButton phoneNumber={whatsapp} variant="inline" message="Hi, I'm interested in your electric cables">
-            {locale === "en" ? "Chat on WhatsApp" : "واٹس ایپ پر چیٹ کریں"}
+            {locale === "en" ? "WhatsApp" : "واٹس ایپ"}
           </WhatsAppButton>
           <a href={`tel:${phone}`} className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-primary shadow-sm">
             <Phone className="h-4 w-4" aria-hidden="true" />

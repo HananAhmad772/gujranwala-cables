@@ -1,7 +1,7 @@
 import { requireAuth } from "@/middlewares/auth.middleware";
 import { getAuthTokenFromRequest } from "@/lib/cookies";
 import { getCurrentAdmin } from "@/services/auth.service";
-import { success, unauthorized } from "@/lib/response";
+import { successResponse, errorResponse } from "@/lib/response";
 
 export async function GET(request: Request) {
   const authResult = requireAuth(request);
@@ -13,9 +13,10 @@ export async function GET(request: Request) {
   const token = getAuthTokenFromRequest(request);
 
   if (!token) {
-    return unauthorized();
+    return errorResponse("Unauthorized", 401);
   }
 
   const admin = await getCurrentAdmin(token);
-  return success("Admin profile fetched", { admin });
+  return successResponse({ admin }, "Admin profile fetched");
 }
+

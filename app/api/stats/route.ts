@@ -1,4 +1,4 @@
-import { serverError, success } from "@/lib/response";
+import { successResponse, errorResponse } from "@/lib/response";
 import { prisma } from "@/lib/prisma";
 import { ReviewStatus, BlogStatus, ContactStatus } from "@/app/generated/prisma/client";
 
@@ -22,7 +22,7 @@ export async function GET() {
       prisma.blogPost.count({ where: { status: BlogStatus.PUBLISHED } }),
     ]);
 
-    return success("Stats fetched successfully", {
+    return successResponse({
       products,
       categories,
       brands,
@@ -30,8 +30,9 @@ export async function GET() {
       totalReviews,
       contactMessages,
       blogPosts,
-    });
+    }, "Stats fetched successfully");
   } catch (error) {
-    return serverError("Internal Server Error");
+    return errorResponse("Internal Server Error", 500);
   }
 }
+

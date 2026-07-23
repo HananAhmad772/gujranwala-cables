@@ -55,7 +55,7 @@ export function WhatsAppButton({
 
   const variantClasses: Record<string, string> = {
     floating:
-      "fixed bottom-6 left-6 z-50 h-14 w-14 bg-[#25D366] text-white shadow-lg hover:bg-[#1DA851] hover:shadow-xl wa-bounce",
+      "fixed bottom-6 right-6 z-100 h-14 w-14 bg-[#25D366] text-white shadow-lg hover:bg-[#1DA851] hover:shadow-xl wa-bounce",
     inline:
       "h-12 px-5 bg-[#25D366] text-white hover:bg-[#1DA851]",
     icon:

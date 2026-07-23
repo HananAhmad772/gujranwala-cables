@@ -146,7 +146,7 @@ export function HomePage() {
             />
             <div className="mt-8 grid grid-cols-2 gap-4">
               {stats.map((stat) => (
-                <div key={stat.value} className="rounded-lg border bg-card p-5">
+                <div key={stat.value} className="rounded-lg border bg-card p-5 shadow-sm">
                   <div className="text-3xl font-black text-primary">{stat.value}</div>
                   <p className="mt-1 text-sm text-muted-foreground">{text(stat.label)}</p>
                 </div>
@@ -199,7 +199,7 @@ export function HomePage() {
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {processSteps.map((step, index) => (
-              <article key={text(step.title)} className="relative rounded-lg border bg-card p-6 shadow-sm">
+              <article key={text(step.title)} className="relative rounded-lg border bg-card p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
                 <div className="grid h-11 w-11 place-items-center rounded-md bg-secondary text-lg font-black text-secondary-foreground">{index + 1}</div>
                 <h2 className="mt-6 text-xl font-black">{text(step.title)}</h2>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">{text(step.text)}</p>

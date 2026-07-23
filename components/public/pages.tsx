@@ -83,13 +83,18 @@ function PageHero({
 
 // ─── Products page ────────────────────────────────────────────────────────────
 
+const PRODUCTS_PER_PAGE = 6;
+
 export function ProductsPage() {
   const { locale } = usePublicLocale();
   const [liveProducts, setLiveProducts] = useState<ApiProduct[] | null>(null);
   const [liveCategories, setLiveCategories] = useState<{ id: string; name: string }[] | null>(null);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetch("/api/products?page=1&limit=50&isActive=true")
+    fetch("/api/products?page=1&limit=200&isActive=true")
       .then((r) => r.ok ? r.json() : null)
       .then((j) => j?.success && setLiveProducts(j.data.products))
       .catch(() => null);
@@ -100,8 +105,25 @@ export function ProductsPage() {
       .catch(() => null);
   }, []);
 
-  const displayProducts = liveProducts && liveProducts.length > 0 ? liveProducts.map(toProductCard) : staticProducts;
+  const allProducts = liveProducts && liveProducts.length > 0 ? liveProducts.map(toProductCard) : staticProducts;
   const catOptions = liveCategories && liveCategories.length > 0 ? liveCategories : staticCategories.map((c, i) => ({ id: String(i), name: c.title.en }));
+
+  // Filter by search + category
+  const filtered = allProducts.filter((p) => {
+    const name = locale === "en" ? p.name.en : p.name.ur;
+    const cat = locale === "en" ? p.category.en : p.category.ur;
+    const matchesSearch = search === "" || name.toLowerCase().includes(search.toLowerCase()) || cat.toLowerCase().includes(search.toLowerCase());
+    const matchesCat = selectedCategory === "all" || p.category.en === selectedCategory;
+    return matchesSearch && matchesCat;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PRODUCTS_PER_PAGE, safePage * PRODUCTS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  const handleSearch = (v: string) => { setSearch(v); setPage(1); };
+  const handleCategory = (v: string) => { setSelectedCategory(v); setPage(1); };
 
   return (
     <PublicShell>
@@ -113,20 +135,30 @@ export function ProductsPage() {
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
-            <SearchBar />
-            <select className="h-12 rounded-md border bg-card px-4 text-sm font-semibold outline-none">
-              <option>{locale === "en" ? "All categories" : "تمام کیٹیگریز"}</option>
+            <SearchBar value={search} onChange={handleSearch} />
+            <select
+              className="h-12 rounded-md border bg-card px-4 text-sm font-semibold outline-none"
+              value={selectedCategory}
+              onChange={(e) => handleCategory(e.target.value)}
+            >
+              <option value="all">{locale === "en" ? "All categories" : "تمام کیٹیگریز"}</option>
               {catOptions.map((cat) => (
-                <option key={cat.id}>{cat.name}</option>
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
               ))}
             </select>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {displayProducts.map((product) => (
-              <ProductCard key={product.slug} product={product} />
-            ))}
-          </div>
-          <Pagination />
+          {paginated.length === 0 ? (
+            <p className="mt-12 text-center text-muted-foreground">
+              {locale === "en" ? "No products match your search." : "کوئی پروڈکٹ نہیں ملی۔"}
+            </p>
+          ) : (
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {paginated.map((product) => (
+                <ProductCard key={product.slug} product={product} />
+              ))}
+            </div>
+          )}
+          <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </section>
       <CTABanner />
@@ -365,17 +397,36 @@ export function AboutPage() {
 
 // ─── Blog list page ───────────────────────────────────────────────────────────
 
+const BLOGS_PER_PAGE = 6;
+
 export function BlogPage() {
+  const { locale } = usePublicLocale();
   const [liveBlogs, setLiveBlogs] = useState<ApiBlog[] | null>(null);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetch("/api/blogs?page=1&limit=20&status=PUBLISHED")
+    fetch("/api/blogs?page=1&limit=200&status=PUBLISHED")
       .then((r) => r.ok ? r.json() : null)
       .then((j) => j?.success && setLiveBlogs(j.data.blogs))
       .catch(() => null);
   }, []);
 
-  const displayBlogs = liveBlogs && liveBlogs.length > 0 ? liveBlogs.map(toBlogCard) : staticBlogPosts;
+  const allBlogs = liveBlogs && liveBlogs.length > 0 ? liveBlogs.map(toBlogCard) : staticBlogPosts;
+
+  const filtered = allBlogs.filter((post) => {
+    if (search === "") return true;
+    const title = locale === "en" ? post.title.en : post.title.ur;
+    const excerpt = locale === "en" ? post.excerpt.en : post.excerpt.ur;
+    const q = search.toLowerCase();
+    return title.toLowerCase().includes(q) || excerpt.toLowerCase().includes(q);
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / BLOGS_PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * BLOGS_PER_PAGE, safePage * BLOGS_PER_PAGE);
+
+  const handleSearch = (v: string) => { setSearch(v); setPage(1); };
 
   return (
     <PublicShell>
@@ -385,13 +436,19 @@ export function BlogPage() {
       />
       <section className="py-14">
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
-          <SearchBar placeholder="Search articles..." />
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {displayBlogs.map((post) => (
-              <BlogCard key={post.slug} post={post} />
-            ))}
-          </div>
-          <Pagination />
+          <SearchBar placeholder={locale === "en" ? "Search articles..." : "مضامین تلاش کریں..."} value={search} onChange={handleSearch} />
+          {paginated.length === 0 ? (
+            <p className="mt-12 text-center text-muted-foreground">
+              {locale === "en" ? "No articles match your search." : "کوئی مضمون نہیں ملا۔"}
+            </p>
+          ) : (
+            <div className="mt-8 grid gap-6 md:grid-cols-3">
+              {paginated.map((post) => (
+                <BlogCard key={post.slug} post={post} />
+              ))}
+            </div>
+          )}
+          <Pagination currentPage={safePage} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </section>
     </PublicShell>
@@ -568,7 +625,7 @@ export function ContactPage() {
               </span>
               <span className="flex gap-3">
                 <WhatsAppButton phoneNumber={whatsapp} variant="inline" message="Hi, I'm interested in your electric cables">
-                  {locale === "en" ? "Chat on WhatsApp" : "واٹس ایپ پر چیٹ کریں"}
+                  {locale === "en" ? "WhatsApp" : "واٹس ایپ"}
                 </WhatsAppButton>
               </span>
               <span className="flex gap-3">

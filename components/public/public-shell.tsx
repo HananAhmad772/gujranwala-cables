@@ -9,7 +9,6 @@ import {
   Menu,
   Moon,
   Phone,
-  Search,
   Sun,
   X,
   Zap,
@@ -21,6 +20,7 @@ import { usePublicLocale } from "@/components/public/localized";
 import { useSiteSettings } from "@/components/providers/site-settings-provider";
 import { SocialLinks } from "@/components/public/interactive";
 import { WhatsAppButton } from "@/components/public/whatsapp-button";
+import { GlobalSearch } from "@/components/public/global-search";
 
 const navItems = [
   { href: "/", label: { en: "Home", ur: "ہوم" } },
@@ -103,12 +103,7 @@ export function Navbar() {
           })}
         </div>
         <div className="hidden items-center gap-2 lg:flex">
-          <button
-            className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground transition hover:text-foreground"
-            aria-label="Search"
-          >
-            <Search className="h-4 w-4" aria-hidden="true" />
-          </button>
+          <GlobalSearch />
           <button
             className="grid h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground transition hover:text-foreground"
             onClick={() => setLocale(locale === "en" ? "ur" : "en")}
@@ -213,7 +208,7 @@ export function Footer() {
             <span>{email}</span>
             <span>{address}</span>
           </div>
-          <div className="mt-5 overflow-hidden rounded-md border border-white/10">
+          <div className="mt-5 overflow-hidden rounded-md border border-white/15">
             <iframe
               title="Gujranwala Electric Wires map preview"
               src={mapSrc}
