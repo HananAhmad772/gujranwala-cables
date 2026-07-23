@@ -30,7 +30,7 @@ export function HeroCarousel() {
           transition={{ duration: 0.75, ease: "easeOut" }}
           className="absolute inset-0"
         >
-          <Image src={slide.image} alt={text(slide.title)} fill priority sizes="100vw" className="object-cover" />
+          <Image src={slide.image} alt={text(slide.title)} fill priority sizes="100vw" className="object-cover" placeholder="blur" blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%2307111f'/%3E%3C/svg%3E" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#07111f]/95 via-[#07111f]/68 to-[#07111f]/24 rtl:bg-gradient-to-l" />
         </motion.div>
       </AnimatePresence>

@@ -34,7 +34,7 @@ function toProductCard(p: ApiProduct) {
     category: { en: p.category?.name ?? "", ur: p.category?.name ?? "" },
     summary: { en: p.description.slice(0, 120), ur: p.description.slice(0, 120) },
     description: { en: p.description, ur: p.description },
-    image: p.featuredImage ?? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1400&q=82",
+    image: p.featuredImage ?? "/uploads/placeholders/no-image.svg",
     rating: 4.8,
     specs: Array.isArray(p.specs)
       ? p.specs.map((s) => ({ label: { en: s.label, ur: s.label }, value: { en: s.value, ur: s.value } }))
@@ -54,7 +54,7 @@ function toBlogCard(b: ApiBlog) {
     title: { en: b.title, ur: b.title },
     excerpt: { en: b.excerpt ?? "", ur: b.excerpt ?? "" },
     body: [] as { en: string; ur: string }[],
-    image: b.featuredImage ?? "https://images.unsplash.com/photo-1581091014534-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
+    image: b.featuredImage ?? "/uploads/placeholders/no-image.svg",
     date: b.publishedAt ? b.publishedAt.slice(0, 10) : b.createdAt.slice(0, 10),
     readTime: { en: "5 min read", ur: "5 منٹ مطالعہ" },
     category: { en: "", ur: "" },
@@ -197,7 +197,7 @@ export function ProductDetailsPage({ slug }: { slug: string }) {
           <Breadcrumb items={[{ label: "Products", href: "/products" }, { label: text(product.name) }]} />
           <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_0.9fr]">
             <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted shadow-sm">
-              <Image src={product.image} alt={text(product.name)} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+              <Image src={product.image} alt={text(product.name)} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" placeholder="blur" blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23e8eff5'/%3E%3C/svg%3E" />
             </div>
             <div>
               <p className="text-sm font-black uppercase tracking-[0.18em] text-secondary">{text(product.category)}</p>
@@ -309,13 +309,15 @@ export function AboutPage() {
       <section className="py-16">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
           <div className="relative min-h-96 overflow-hidden rounded-lg border bg-muted">
-            <Image
-              src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=1600&q=85"
-              alt="Manufacturing team"
-              fill
-              sizes="(min-width: 1024px) 45vw, 100vw"
-              className="object-cover"
-            />
+              <Image
+                src="/uploads/placeholders/no-image.svg"
+                alt="Manufacturing team"
+                fill
+                sizes="(min-width: 1024px) 45vw, 100vw"
+                className="object-cover"
+                placeholder="blur"
+                blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='20' height='20' fill='%23e8eff5'/%3E%3C/svg%3E"
+              />
           </div>
           <div className="self-center">
             <h2 className="text-3xl font-black tracking-normal sm:text-4xl">

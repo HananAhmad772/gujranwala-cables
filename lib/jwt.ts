@@ -37,21 +37,29 @@ export function verifyToken(token: string): AdminJwtPayload {
 }
 
 export function decodeToken(token: string): AdminJwtPayload | null {
-  const decoded = jwt.decode(token);
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payloadB64 = parts[1];
+    const payloadStr = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"));
+    const decoded = JSON.parse(payloadStr);
 
-  if (typeof decoded !== "object" || decoded === null) {
+    if (typeof decoded !== "object" || decoded === null) {
+      return null;
+    }
+
+    const { adminId, email, role } = decoded as { adminId?: string; email?: string; role?: string };
+
+    if (!adminId || !email || !role) {
+      return null;
+    }
+
+    return {
+      adminId,
+      email,
+      role,
+    };
+  } catch {
     return null;
   }
-
-  const { adminId, email, role } = decoded as { adminId?: string; email?: string; role?: string };
-
-  if (!adminId || !email || !role) {
-    return null;
-  }
-
-  return {
-    adminId,
-    email,
-    role,
-  };
 }

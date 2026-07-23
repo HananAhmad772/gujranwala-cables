@@ -23,7 +23,7 @@ function toProductCard(p: ApiProduct) {
     category: { en: p.category?.name ?? "", ur: p.category?.name ?? "" },
     summary: { en: p.description.slice(0, 120), ur: p.description.slice(0, 120) },
     description: { en: p.description, ur: p.description },
-    image: p.featuredImage ?? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1400&q=82",
+    image: p.featuredImage ?? "/uploads/placeholders/no-image.svg",
     rating: 4.8,
     specs: Array.isArray(p.specs) ? p.specs.map((s) => ({ label: { en: s.label, ur: s.label }, value: { en: s.value, ur: s.value } })) : [],
     features: [],
@@ -46,7 +46,7 @@ function toBlogCard(b: ApiBlog) {
     title: { en: b.title, ur: b.title },
     excerpt: { en: b.excerpt ?? "", ur: b.excerpt ?? "" },
     body: [],
-    image: b.featuredImage ?? "https://images.unsplash.com/photo-1581091014534-8987c1d64718?auto=format&fit=crop&w=1400&q=82",
+    image: b.featuredImage ?? "/uploads/placeholders/no-image.svg",
     date: b.publishedAt ? b.publishedAt.slice(0, 10) : b.createdAt.slice(0, 10),
     readTime: { en: "5 min read", ur: "5 منٹ مطالعہ" },
     category: { en: "", ur: "" },
@@ -168,7 +168,7 @@ export function HomePage() {
       <section className="bg-[#07111f] py-16 text-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
           <div className="relative min-h-96 overflow-hidden rounded-lg">
-            <Image src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=85" alt="Industrial manufacturing floor" fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+            <Image src="/uploads/placeholders/no-image.svg" alt="Industrial manufacturing floor" fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
           <div className="self-center">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-secondary">{locale === "en" ? "Company Introduction" : "کمپنی تعارف"}</p>

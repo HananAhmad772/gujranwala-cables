@@ -52,7 +52,13 @@ async function verifyJWT(token: string, secretStr: string): Promise<any> {
 }
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  let token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
+  if (!token) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    }
+  }
   const { pathname } = request.nextUrl;
   const method = request.method;
 

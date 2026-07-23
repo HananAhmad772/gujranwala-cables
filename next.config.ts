@@ -2,17 +2,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Local uploads served from /uploads/* are handled directly by Next.js
-    // No remote pattern needed for local files.
-    // Unsplash is kept only for any remaining static mock data references.
     remotePatterns: [
       {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      // Vercel Blob: replace <store-id> with your actual store ID from the Vercel dashboard.
+      // Format: https://<store-id>.public.blob.vercel-storage.com
+      {
+        protocol: "https",
+        hostname: "https://dycwbvq5i0c2u057.public.blob.vercel-storage.com",
+      },
     ],
-    // Allow unoptimized local uploads so Next/Image can render /uploads/ paths
-    // without needing a configured loader or remote pattern.
     localPatterns: [
       {
         pathname: "/uploads/**",

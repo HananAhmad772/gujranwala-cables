@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     const payload = validateBody(loginSchema, body);
     const result = await loginAdmin(payload);
-    const response = success("Login successful", { admin: result.admin });
+    const response = success("Login successful", { admin: result.admin, token: result.token });
     attachAuthCookie(response, result.token);
     return response;
   } catch (error) {

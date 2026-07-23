@@ -36,6 +36,11 @@ export function parseCookies(cookieHeader: string | null): Record<string, string
 }
 
 export function getAuthTokenFromRequest(request: Request): string | null {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7);
+  }
+
   const cookieHeader = request.headers.get("cookie");
   const cookies = parseCookies(cookieHeader);
   return cookies[AUTH_COOKIE_NAME] ?? null;
